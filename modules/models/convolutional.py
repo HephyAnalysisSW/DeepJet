@@ -51,7 +51,6 @@ def model_deepFlavourNoNeutralReference(Inputs,nclasses,nregclasses,dropoutRate=
     model = Model(inputs=Inputs, outputs=predictions)
     return model
 
-
 def model_deepFlavourReference(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
     """
     reference 1x1 convolutional model for 'deepFlavour'

@@ -15,7 +15,8 @@ for module_name in modules:
         #remove base class
         if 'TrainDataDeepJet' == model_name: continue
         if 'TrainDataDeepJetDelphes' == model_name: continue
-        
+        if 'TrainDataDeepLepton' == model_name: continue
+
         model = getattr(module, model_name)
         globals()[model_name] = model
         locals( )[model_name] = model
