@@ -18,6 +18,6 @@ predictPath='/local/gmoertl/DeepLepton/DeepJet_GPU/predictTestData'
 #Convert
 convertFromRoot.py --testdatafor ${trainingPath}/trainsamples.dc -i ${testfilesTXT} -o ${predictPath}/TestData
 #Predict
-mini_predict.py ${trainingPath}/KERAS_model.h5 ${predictPath}/TestData/dataCollection.dc ${predictPath}EvaluationTestData
+predict.py ${trainingPath}/KERAS_model.h5 ${predictPath}/TestData/dataCollection.dc ${predictPath}/EvaluationTestData
 
 
