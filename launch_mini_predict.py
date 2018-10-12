@@ -10,6 +10,8 @@ sampleSelection='DYVsQCD'
 sampleSize='mini_'
 prefix=''
 
+#Convert Training Data
+#convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/v1/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
 
 #Convert
 #convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/v1/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}test_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}TestData

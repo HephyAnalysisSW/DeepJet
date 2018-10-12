@@ -18,7 +18,7 @@ if newtraining:
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
-    train.compileModel(learningrate=0.001, #0.001,
+    train.compileModel(learningrate=0.0005, #0.001,
                        loss=['categorical_crossentropy'],
                        #loss=['categorical_crossentropy',loss_meansquared],
                        metrics=['accuracy'],
