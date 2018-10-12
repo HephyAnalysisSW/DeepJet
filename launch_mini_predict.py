@@ -10,12 +10,14 @@ sampleSelection='DYVsQCD'
 sampleSize='mini_'
 prefix=''
 
-#Convert Training Data
-#convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/v1/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
+trainingPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining'
+testfilesTXT='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_test_muo_std.txt'
+predictPath='/local/gmoertl/DeepLepton/DeepJet_GPU/predictTestData'
+
 
 #Convert
-#convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/v1/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}test_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}TestData
+convertFromRoot.py --testdatafor ${trainingPath}/trainsamples.dc -i ${testfilesTXT} -o ${predictPath}/TestData
 #Predict
-mini_predict.py /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}Training/KERAS_model.h5 /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${fromrun}TestData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/Test/${sampleSelection}_${prefix}${flavour}${run}EvaluationTestData
+mini_predict.py ${trainingPath}/KERAS_model.h5 ${predictPath}/TestData/dataCollection.dc ${predictPath}EvaluationTestData
 
 
