@@ -14,6 +14,8 @@ trainingPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/D
 testfilesTXT='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_test_muo_std.txt'
 predictPath='/local/gmoertl/DeepLepton/DeepJet_GPU/predictTestData'
 
+#Convert mini file
+convertFromRoot.py -i ${testfilesTXT} -o ${predictPath}/TrainData_mini -c TrainData_deepLeptons_Muons_ptRelSorted_2016
 
 #Convert
 convertFromRoot.py --testdatafor ${trainingPath}/trainsamples.dc -i ${testfilesTXT} -o ${predictPath}/TestData
