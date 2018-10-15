@@ -44,7 +44,7 @@ for branch in branchList:
         for j in xrange(val.GetLen()):
             valList[i].append((val.GetValue(j)-meansDict[branch][0])/meansDict[branch][1])
 
-    print branch, -meansDict[branch][0]/meansDict[branch][1]
+    print '%s %.10f %.10f %.7e' %(branch, meansDict[branch][0], meansDict[branch][1], -meansDict[branch][0]/meansDict[branch][1])
     for val in valList:
         print val
 
