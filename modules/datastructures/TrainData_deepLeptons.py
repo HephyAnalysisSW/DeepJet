@@ -175,7 +175,7 @@ class TrainData_deepLeptons_Electrons_ptRelSorted_2016(TrainData_fullTruth):
 
         #high-level lepton features
         #lep_jetBTagCSV', 
-        #'lep_jetBTagDeepCSV', 
+        'lep_jetBTagDeepCSV', 
         #'lep_jetBTagDeepCSVCvsB', 'lep_jetBTagDeepCSVCvsL',  
 
         #electron specific features

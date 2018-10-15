@@ -14,7 +14,7 @@ if newtraining:
     from models import model_deepLeptonReference
     
     #train.setModel(model_deepLeptonReference_reduced,dropoutRate=0.5,momentum=0.2)
-    train.setModel(model_deepLeptonReference,dropoutRate=0.65,momentum=0.3)
+    train.setModel(model_deepLeptonReference,dropoutRate=0.50,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
