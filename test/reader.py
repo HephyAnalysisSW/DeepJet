@@ -7,9 +7,29 @@ import os
 import shutil
 import uuid
 import operator
+from math import *
         
 # DeepJet & DeepJetCore
 from DeepJetCore.DataCollection import DataCollection
+
+def ptRel(p4,axis):
+    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
+    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
+    return o.Perp(a)
+
+def deltaPhi(phi1, phi2):
+    dphi = phi2-phi1
+    if  dphi > pi:
+        dphi -= 2.0*pi
+    if dphi <= -pi:
+        dphi += 2.0*pi
+    return abs(dphi)
+
+def deltaR2(eta1, phi1, eta2, phi2):
+    return deltaPhi(phi1, phi2)**2 + (eta1 - eta2)**2
+
+def deltaR(*args, **kwargs):
+    return sqrt(deltaR2(*args, **kwargs))
 
 class TrainingInfo:
 
@@ -42,8 +62,6 @@ class TrainingInfo:
         self.dataCollection.dataclass.readIn(fullpath)
         self.branches = self.dataCollection.dataclass.branches
 
-        self._feature_getters = {}
-
         print "Branches:"
         for i in range(len(self.branches)):
             print "Collection", i
@@ -52,6 +70,8 @@ class TrainingInfo:
             print 
 
 class InputData:
+
+    flavors = ['charged', 'neutral', 'photon', 'muon', 'electron']
 
     def __init__( self, filename, treename = "tree"):
 
@@ -82,7 +102,11 @@ class InputData:
 
         self.chain.GetEntries()
         self.init_getters()
- 
+
+        # dict cache for all pf candidates in the event
+        self._pf_candidates = {} 
+        self._nevent        = None
+
     # Clean up the tmp files
     def __del__( self ):
         import os #Interesting. os gets un-imported in the destructor :-)
@@ -90,47 +114,6 @@ class InputData:
            filename = os.path.join( self.tmpdir, file_ )
            if os.path.exists( filename ):
                 os.remove( filename )
-
-    def getEntry( self, nevent ):
-        self.chain.GetEntry( nevent )
-
-    # Store a list of functors that retrieve the correct branch from the event
-    def init_getters( self):
-        self._getters = {'neutrals': {
-            "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
-        "pfCand_neutral_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dxy_pf"),
-         "pfCand_neutral_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dz_pf"),
-   "pfCand_neutral_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_puppiWeight"),
-  "pfCand_neutral_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_hcalFraction"),
-        "pfCand_neutral_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_fromPV"),
-        },
-                         'charged': {
-            "pfCand_charged_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_pt"),
-        "pfCand_charged_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dxy_pf"),
-         "pfCand_charged_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dz_pf"),
-   "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
-  "pfCand_charged_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_hcalFraction"),
-        "pfCand_charged_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_fromPV"),
-        },
-                         'photon': {
-            "pfCand_photon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_pt"),
-        "pfCand_photon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dxy_pf"),
-         "pfCand_photon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dz_pf"),
-   "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
-  "pfCand_photon_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_hcalFraction"),
-        "pfCand_photon_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_fromPV"),
-        },
-                         'electron': {
-          "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
-      "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
-       "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
-        },
-                         'muon': {
-              "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
-          "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
-           "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
-        },
-    }
 
     # Store a list of functors that retrieve the correct branch from the event
     def feature_getters( self, collection_name):
@@ -174,6 +157,51 @@ class InputData:
         }
         return self._feature_getters[collection_name] 
 
+    # Store a list of functors that retrieve the correct branch from the event
+    def init_getters( self):
+        self._feature_getters = {}
+        self.pf_size_getters = { 
+            "neutral":operator.attrgetter( "nDL_pfCand_neutral"),
+            "charged":operator.attrgetter( "nDL_pfCand_charged"),
+            "photon":operator.attrgetter( "nDL_pfCand_photon"),
+            "muon":operator.attrgetter( "nDL_pfCand_muon"),
+            "electron":operator.attrgetter( "nDL_pfCand_electron"),
+            }
+        self.pf_getters = { 'neutral':{
+            "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
+        "pfCand_neutral_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dxy_pf"),
+         "pfCand_neutral_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dz_pf"),
+   "pfCand_neutral_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_puppiWeight"),
+  "pfCand_neutral_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_hcalFraction"),
+        "pfCand_neutral_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_fromPV"),
+        },
+                            'charged':{
+            "pfCand_charged_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_pt"),
+        "pfCand_charged_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dxy_pf"),
+         "pfCand_charged_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dz_pf"),
+   "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
+  "pfCand_charged_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_hcalFraction"),
+        "pfCand_charged_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_fromPV"),
+        },
+                            'photon':{
+             "pfCand_photon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_pt"),
+         "pfCand_photon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dxy_pf"),
+          "pfCand_photon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dz_pf"),
+    "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
+   "pfCand_photon_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_hcalFraction"),
+        },
+                            'electron':{
+               "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
+           "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
+            "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
+        },
+                            'muon':{
+               "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
+           "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
+            "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
+        },
+    }
+
     # for a given lepton, read the pf candidate mask and return the PF indices
     def get_pf_indices( self, pf_type, collection_name, n_lep):
         n = getattr(self.event, "nDL_pfCand_%s"%pf_type )
@@ -181,20 +209,54 @@ class InputData:
         mask_ = (1<<n_lep)
         return filter( lambda i: mask_&pf_mask[i], range(n))
 
+    def getEntry( self, nevent ):
+        self.chain.GetEntry( nevent )
+        self.nevent = nevent
+
+    def _get_all_pf_candidates( self, flavor):
+        n = self.pf_size_getters[flavor](self.event)
+        att_getters = self.pf_getters[flavor]
+        return [ {name: getter(self.event)[i] for name, getter in self.pf_getters[flavor].iteritems()} for i in range(n) ]
+    
+    # cached version of get_all_pf_candidates
+    @property
+    def pf_candidates( self ):
+        if self._nevent == self.nevent:
+            return self._pf_candidates
+        else:
+            self._pf_candidates = {flavor: self._get_all_pf_candidates(flavor) for flavor in self.flavors}
+            self._nevent = self.nevent 
+            return self._pf_candidates
+
     # put all inputs together
     def read_inputs( self, collection_name, branches, n_lep):
         
         # read the lepton features
-        features = [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in branches ]
+        features = [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in branches[0] ]
 
-        # read pf indices
-        pf_neutral_indices  = self.get_pf_indices( 'neutral', collection_name, n_lep )
-        pf_charged_indices  = self.get_pf_indices( 'charged', collection_name, n_lep )
-        pf_photon_indices   = self.get_pf_indices( 'photon', collection_name, n_lep )
-        pf_muon_indices     = self.get_pf_indices( 'muon', collection_name, n_lep )
-        pf_electron_indices = self.get_pf_indices( 'electron', collection_name, n_lep )
+        # read pf indices, then select the candidates
+        pf_candidates = {}
+        for flavor in self.flavors:
+            pf_indices            = self.get_pf_indices( flavor, collection_name, n_lep )
+            pf_candidates[flavor] = [ self.pf_candidates[flavor][i] for i in pf_indices]
 
+            lep_p4 = ROOT.TLorentzVector()
+            lep_getters = self.feature_getters( collection_name )
+            lep_p4.SetPtEtaPhiM( lep_getters["lep_pt"](self.event)[n_lep], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep], 0. )
+            for cand in pf_candidates[flavor]:
 
+                cand_p4 = ROOT.TLorentzVector()
+                name = "pfCand_"+flavor+"_%s_ptRelSorted"
+                cand_p4.SetPtEtaPhiM( 
+                    cand[name%"pt"], cand[name%"eta"],cand[name%"phi"],cand[name%"eta"],0.
+                    )
+                
+                cand[name%"ptRel"] = ptRel( cand_p4, lep_p4 )
+                cand[name%"dR"]    = deltaR( cand[name%"eta"], cand[name%"phi"], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep]) 
+ 
+        # now calculate the pf_candidate features that depend on the lepton in question
+
+        return pf_indices
 
 #         pfCand_neutral_ptRel_ptRelSorted
 #        pfCand_neutral_deltaR_ptRelSorted
@@ -271,8 +333,8 @@ if __name__ == "__main__":
     inputData = InputData( input_filename )
 
     inputData.getEntry(0)
-    res  = inputData.read_inputs("LepGood", trainingInfo.branches[0], 0)
-    res2 = inputData.read_inputs("LepOther", trainingInfo.branches[0], 0)
+    res  = inputData.read_inputs("LepGood", trainingInfo.branches, 0)
+    res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
 
 #iPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_modulo_0_trainfile_1.root'
 #iFile = ROOT.TFile.Open(iPath, 'read')
