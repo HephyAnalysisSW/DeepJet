@@ -46,12 +46,12 @@ class TrainingInfo:
         batchsize       =   pickle.load(file_)
         dataclass       =   pickle.load(file_)
         weighter        =   pickle.load(file_)
-        self.means           =   pickle.load(file_)
+        self._means     =   pickle.load(file_)
         file_.close()
 
 
         # Get means dictionary
-        self.means_dict = {name : (self.means[0][i], self.means[1][i]) for i, name in enumerate( self.means.dtype.names) }
+        self.means = {name : (self._means[0][i], self._means[1][i]) for i, name in enumerate( self._means.dtype.names) }
 
         # Get DeepJetCore DataCollection
         self.dataCollection = DataCollection()
@@ -66,12 +66,13 @@ class TrainingInfo:
         for i in range(len(self.branches)):
             print "Collection", i
             for i_b, b in enumerate(self.branches[i]):
-                print "  branch %2i/%2i %40s   mean %8.5f var %8.5f" %( i, i_b, b, self.means_dict[b][0], self.means_dict[b][1])
+                print "  branch %2i/%2i %40s   mean %8.5f var %8.5f" %( i, i_b, b, self.means[b][0], self.means[b][1])
             print 
 
 class InputData:
 
-    flavors = ['charged', 'neutral', 'photon', 'muon', 'electron']
+    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
+    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
 
     def __init__( self, filename, treename = "tree"):
 
@@ -160,13 +161,18 @@ class InputData:
     # Store a list of functors that retrieve the correct branch from the event
     def init_getters( self):
         self._feature_getters = {}
-        self.pf_size_getters = { 
-            "neutral":operator.attrgetter( "nDL_pfCand_neutral"),
-            "charged":operator.attrgetter( "nDL_pfCand_charged"),
-            "photon":operator.attrgetter( "nDL_pfCand_photon"),
-            "muon":operator.attrgetter( "nDL_pfCand_muon"),
-            "electron":operator.attrgetter( "nDL_pfCand_electron"),
+
+        self.pf_collection_names = { 
+            "neutral":  "DL_pfCand_neutral",
+            "charged":  "DL_pfCand_charged",
+            "photon":   "DL_pfCand_photon",
+            "muon":     "DL_pfCand_muon",
+            "electron": "DL_pfCand_electron",
+            "SV":       "DL_SV",
             }
+
+        self.pf_size_getters = { key:operator.attrgetter( "n"+name ) for key, name in self.pf_collection_names.iteritems() } 
+
         self.pf_getters = { 'neutral':{
             "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
            "pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
@@ -195,13 +201,14 @@ class InputData:
           "pfCand_photon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dz_pf"),
     "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
    "pfCand_photon_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_hcalFraction"),
+         "pfCand_photon_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_fromPV"),
         },
                             'electron':{
-               "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
-              "pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
-              "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
-           "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
-            "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
+           "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
+          "pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
+          "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
+       "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
+        "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
         },
                             'muon':{
                "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
@@ -210,12 +217,32 @@ class InputData:
            "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
             "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
         },
+                            'SV':{
+                                    "SV_pt":operator.attrgetter("DL_SV_pt"),
+                                   "SV_eta":operator.attrgetter("DL_SV_eta"),
+                                   "SV_phi":operator.attrgetter("DL_SV_phi"),
+                                  "SV_chi2":operator.attrgetter("DL_SV_chi2"),
+                                  "SV_ndof":operator.attrgetter("DL_SV_ndof"),
+                                   "SV_dxy":operator.attrgetter("DL_SV_dxy"),
+                                  "SV_edxy":operator.attrgetter("DL_SV_edxy"),
+                                  "SV_ip3d":operator.attrgetter("DL_SV_ip3d"),
+                                 "SV_eip3d":operator.attrgetter("DL_SV_eip3d"),
+                                 "SV_sip3d":operator.attrgetter("DL_SV_sip3d"),
+                              "SV_cosTheta":operator.attrgetter("DL_SV_cosTheta"),
+                                 "SV_jetPt":operator.attrgetter("DL_SV_jetPt"),
+                                "SV_jetEta":operator.attrgetter("DL_SV_jetEta"),
+                                 "SV_jetDR":operator.attrgetter("DL_SV_jetDR"),
+                          "SV_maxDxyTracks":operator.attrgetter("DL_SV_maxDxyTracks"),
+                          "SV_secDxyTracks":operator.attrgetter("DL_SV_secDxyTracks"),
+                          "SV_maxD3dTracks":operator.attrgetter("DL_SV_maxD3dTracks"),
+                          "SV_secD3dTracks":operator.attrgetter("DL_SV_secD3dTracks"),
+        },
     }
 
     # for a given lepton, read the pf candidate mask and return the PF indices
     def get_pf_indices( self, pf_type, collection_name, n_lep):
-        n = getattr(self.event, "nDL_pfCand_%s"%pf_type )
-        pf_mask = getattr(self.event, "DL_pfCand_%s_%s_mask" % (pf_type, "selectedLeptons" if collection_name=="LepGood" else "otherLeptons" ) )
+        n = self.pf_size_getters[pf_type](self.event) 
+        pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[pf_type], "selectedLeptons" if collection_name=="LepGood" else "otherLeptons" ) )
         mask_ = (1<<n_lep)
         return filter( lambda i: mask_&pf_mask[i], range(n))
 
@@ -252,9 +279,9 @@ class InputData:
             lep_getters = self.feature_getters( collection_name )
             lep_p4.SetPtEtaPhiM( lep_getters["lep_pt"](self.event)[n_lep], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep], 0. )
 
-            name = "pfCand_"+flavor+"_%s_ptRelSorted"
+            name = "pfCand_"+flavor+"_%s_ptRelSorted" if flavor!="SV" else "SV_%s"
             ptRel_name = name%"ptRel"
-            dR_name    = name%"dR"
+            dR_name    = name%"deltaR"
             for cand in pf_candidates[flavor]:
 
                 cand_p4 = ROOT.TLorentzVector()
@@ -270,15 +297,32 @@ class InputData:
  
         return pf_candidates
 
-    def features_for_lepton( self, collection_name, feature_branches, n_lep):
+    def features_for_lepton( self, collection_name, n_lep, feature_branches):
         # read the lepton features
         return [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in feature_branches ]
 
-    def prepare_inputs( self, collection_name, feature_branches, pf_branches, n_lep, means):
+    def prepare_inputs( self, collection_name, n_lep, feature_branches, pf_branches, means):
         
-        features      = self.features_for_lepton( collection_name, feature_branches, n_lep )
+        features            = self.features_for_lepton( collection_name, n_lep, feature_branches )
+        features_normalized = [ (features[i_b]-means[b][0])/means[b][1] for i_b, b in enumerate( feature_branches ) ]
         pf_candidates = self.pf_candidates_for_lepton( collection_name, n_lep )
+
+        pf_res = []    
+        for flavor, branches in zip(self.flavors, pf_branches):
+            cand_res = []
+            for cand in pf_candidates[flavor]:
+                branch_res = [] 
+                for b in branches:
+                    try:
+                        branch_res.append(  (cand[b]-means[b][0])/means[b][1] )
+                    except KeyError as e:
+                        print b, "means",means.has_key(b), "cand",cand.has_key(b)
+                        raise e
+                cand_res.append( branch_res )
+            pf_res.append(cand_res)
          
+        return features_normalized, pf_res 
+
 if __name__ == "__main__": 
     # Information on the training
     training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
@@ -287,10 +331,27 @@ if __name__ == "__main__":
     # Input data
     input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/test/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
     inputData = InputData( input_filename )
-
     inputData.getEntry(0)
-    pf_candidates = inputData.pf_candidates_for_lepton("LepGood", 0)
-    features      =  inputData.features_for_lepton( "LepGood", trainingInfo.branches[0], 0 )
+
+    nevents = inputData.chain.GetEntries()
+    for nevent in range( nevents ): 
+        inputData.getEntry(nevent)
+        for i_lep in range( inputData.event.nLepGood ):
+            print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
+            if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
+            features      =  inputData.features_for_lepton( "LepGood", 0, trainingInfo.branches[0] )
+            features_normalized, pf_norm = inputData.prepare_inputs( "LepGood", 0, trainingInfo.branches[0],  trainingInfo.branches[1:], trainingInfo.means)
+        for i_lep in range( inputData.event.nLepOther ):
+            print "LepOther %i/%i" % (i_lep, inputData.event.nLepOther)
+            if abs(inputData.event.LepOther_pdgId[i_lep])!=13: continue
+
+            features      =  inputData.features_for_lepton( "LepOther", 0, trainingInfo.branches[0] )
+            features_normalized, pf_norm = inputData.prepare_inputs( "LepOther", 0, trainingInfo.branches[0],  trainingInfo.branches[1:], trainingInfo.means)
+             
+        
+    #pf_candidates = inputData.pf_candidates_for_lepton("LepGood", 0)
+
+    
 
     #res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
 
