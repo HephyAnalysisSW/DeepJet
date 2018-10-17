@@ -440,8 +440,8 @@ class TrainData_deepLeptons_Muons_ptRelSorted_2016(TrainData_fullTruth):
 
         #isolation features
         'lep_relIso03', 'lep_miniRelIsoCharged', 'lep_miniRelIsoNeutral', 
-        #'lep_jetPtRatiov1', 'lep_jetPtRelv1',
-         'lep_jetPtRatiov2', 'lep_jetPtRelv2',
+        'lep_jetPtRatiov1', 'lep_jetPtRelv1',
+        # 'lep_jetPtRatiov2', 'lep_jetPtRelv2',
 
         #high-level lepton features
         #lep_jetBTagCSV', 
