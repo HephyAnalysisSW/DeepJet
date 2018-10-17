@@ -107,6 +107,15 @@ class InputData:
         # dict cache for all pf candidates in the event
         self._pf_candidates = {} 
         self._nevent        = None
+        self.means          = None
+
+    # Setters to store means and branches
+    def setMeans( self, means ):
+        self.means = means
+    def setFeatureBranches( self, feature_branches ):
+        self.feature_branches = feature_branches
+    def setPFBranches( self, pf_branches ):
+        self.pf_branches = pf_branches
 
     # Clean up the tmp files
     def __del__( self ):
@@ -297,31 +306,63 @@ class InputData:
  
         return pf_candidates
 
-    def features_for_lepton( self, collection_name, n_lep, feature_branches):
+    def features_for_lepton( self, collection_name, n_lep):
         # read the lepton features
-        return [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in feature_branches ]
+        return [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in self.feature_branches ]
 
-    def prepare_inputs( self, collection_name, n_lep, feature_branches, pf_branches, means):
+    @property 
+    def pf_norm_zero( self ):
+        if not hasattr( self, "_pf_norm_zero"):
+            self._pf_norm_zero = []
+            for i_flavor, flavor in enumerate(self.flavors):
+                cand_res = []
+                for i_cand in range(self.lengths[i_flavor]):
+                    branch_res = [] 
+                    for b in self.pf_branches[i_flavor]:
+                        branch_res.append( -self.means[b][0]/self.means[b][1] )
+                    cand_res.append( branch_res )
+                self._pf_norm_zero.append( cand_res )
+        return self._pf_norm_zero
+
+    @property 
+    def pf_zero( self ):
+        if not hasattr( self, "_pf_zero"):
+            self._pf_zero = []
+            for i_flavor, flavor in enumerate(self.flavors):
+                cand_res = []
+                for i_cand in range(self.lengths[i_flavor]):
+                    branch_res = [] 
+                    for b in self.pf_branches[i_flavor]:
+                        branch_res.append( 0 )
+                    cand_res.append( branch_res )
+                self._pf_zero.append( cand_res )
+        return self._pf_zero
+
+    def prepare_inputs( self, collection_name, n_lep):
         
-        features            = self.features_for_lepton( collection_name, n_lep, feature_branches )
-        features_normalized = [ (features[i_b]-means[b][0])/means[b][1] for i_b, b in enumerate( feature_branches ) ]
+        features            = self.features_for_lepton( collection_name, n_lep )
+        features_normalized = [ (features[i_b]-self.means[b][0])/self.means[b][1] for i_b, b in enumerate( self.feature_branches ) ]
         pf_candidates = self.pf_candidates_for_lepton( collection_name, n_lep )
 
-        pf_res = []    
-        for flavor, branches in zip(self.flavors, pf_branches):
-            cand_res = []
-            for cand in pf_candidates[flavor]:
+        pf_norm_res = self.pf_norm_zero  
+        pf_res      = self.pf_zero  
+        for i_flavor, (flavor, branches) in enumerate(zip(self.flavors, self.pf_branches)):
+            print "flavor %10s"%flavor,"cands %2i"%len(pf_candidates[flavor]),"max %2i"%self.lengths[i_flavor]
+            for i_cand, cand in enumerate(pf_candidates[flavor][:self.lengths[i_flavor]]):
                 branch_res = [] 
-                for b in branches:
-                    try:
-                        branch_res.append(  (cand[b]-means[b][0])/means[b][1] )
-                    except KeyError as e:
-                        print b, "means",means.has_key(b), "cand",cand.has_key(b)
-                        raise e
-                cand_res.append( branch_res )
-            pf_res.append(cand_res)
+                for i_branch, branch in enumerate(branches):
+        #            try:
+                        pf_norm_res[i_flavor][i_cand][i_branch] = (cand[branch]-self.means[branch][0])/self.means[branch][1]
+                        pf_res[i_flavor][i_cand][i_branch]      = cand[branch]
+                        print "  flavor %10s cand %2i  branch %40s val %6.4f mean %6.4f var %6.4f norm %6.4f" % ( flavor, i_cand, branch, cand[branch], self.means[branch][0], self.means[branch][1], pf_norm_res[i_flavor][i_cand][i_branch] )
+        #                branch_res.append(  (cand[b]-self.means[b][0])/self.means[b][1] )
+        #            except KeyError as e:
+        #                print b, "means",self.means.has_key(b), "cand",cand.has_key(b)
+        #                raise e
+        #        cand_res.append( branch_res )
+        #    pf_res.append(cand_res)
          
-        return features_normalized, pf_res 
+        return features_normalized, pf_norm_res, pf_res 
 
 if __name__ == "__main__": 
     # Information on the training
@@ -333,25 +374,28 @@ if __name__ == "__main__":
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
+    inputData.setMeans( trainingInfo.means )
+    inputData.setFeatureBranches( trainingInfo.branches[0] )
+    inputData.setPFBranches( trainingInfo.branches[1:] )
+
     nevents = inputData.chain.GetEntries()
     for nevent in range( nevents ): 
         inputData.getEntry(nevent)
-        for i_lep in range( inputData.event.nLepGood ):
-            print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
-            if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
-            features      =  inputData.features_for_lepton( "LepGood", 0, trainingInfo.branches[0] )
-            features_normalized, pf_norm = inputData.prepare_inputs( "LepGood", 0, trainingInfo.branches[0],  trainingInfo.branches[1:], trainingInfo.means)
+        #for i_lep in range( inputData.event.nLepGood ):
+        #    if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
+        #    print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
+        #    features      =  inputData.features_for_lepton( "LepGood", 0, trainingInfo.branches[0] )
+        #    features_normalized, pf_norm = inputData.prepare_inputs( "LepGood", 0)
         for i_lep in range( inputData.event.nLepOther ):
-            print "LepOther %i/%i" % (i_lep, inputData.event.nLepOther)
             if abs(inputData.event.LepOther_pdgId[i_lep])!=13: continue
+            print "LepOther %i/%i" % (i_lep, inputData.event.nLepOther)
 
-            features      =  inputData.features_for_lepton( "LepOther", 0, trainingInfo.branches[0] )
-            features_normalized, pf_norm = inputData.prepare_inputs( "LepOther", 0, trainingInfo.branches[0],  trainingInfo.branches[1:], trainingInfo.means)
+            features      =  inputData.features_for_lepton( "LepOther", 0 )
+            features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepOther", 0)
+            break
+        break
              
-        
     #pf_candidates = inputData.pf_candidates_for_lepton("LepGood", 0)
-
-    
 
     #res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
 
