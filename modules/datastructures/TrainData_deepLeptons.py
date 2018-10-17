@@ -52,11 +52,11 @@ class TrainData_deepLeptons_Electrons_2016(TrainData_fullTruth):
         'lep_mvaIdSpring16',
         ])
 
-        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],12)
-        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],60)
-        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],35)
-        self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],6)
-        self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],6)
+        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],5)
+        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],20)
+        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],10)
+        self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],3)
+        self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],3)
         self.addBranches([ 'SV_pt', 'SV_chi2', 'SV_ndof', 'SV_dxy', 'SV_edxy', 'SV_ip3d', 'SV_eip3d', 'SV_sip3d', 'SV_cosTheta', 'SV_deltaR',
                           'SV_jetPt', 'SV_jetEta', 'SV_jetDR', 'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
 
@@ -175,7 +175,7 @@ class TrainData_deepLeptons_Electrons_ptRelSorted_2016(TrainData_fullTruth):
 
         #high-level lepton features
         #lep_jetBTagCSV', 
-        'lep_jetBTagDeepCSV', 
+        #'lep_jetBTagDeepCSV', 
         #'lep_jetBTagDeepCSVCvsB', 'lep_jetBTagDeepCSVCvsL',  
 
         #electron specific features
@@ -320,11 +320,11 @@ class TrainData_deepLeptons_Muons_2016(TrainData_fullTruth):
         'lep_nStations_float', 
         ])
 
-        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],12)
-        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],60)
-        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],35)
-        self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],6)
-        self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],6)
+        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],5)
+        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],20)
+        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],10)
+        self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],3)
+        self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],3)
         self.addBranches([ 'SV_pt', 'SV_chi2', 'SV_ndof', 'SV_dxy', 'SV_edxy', 'SV_ip3d', 'SV_eip3d', 'SV_sip3d', 'SV_cosTheta', 'SV_deltaR',
                           'SV_jetPt', 'SV_jetEta', 'SV_jetDR', 'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
 
@@ -440,8 +440,8 @@ class TrainData_deepLeptons_Muons_ptRelSorted_2016(TrainData_fullTruth):
 
         #isolation features
         'lep_relIso03', 'lep_miniRelIsoCharged', 'lep_miniRelIsoNeutral', 
-        'lep_jetPtRatiov1', 'lep_jetPtRelv1',
-        # 'lep_jetPtRatiov2', 'lep_jetPtRelv2',
+        #'lep_jetPtRatiov1', 'lep_jetPtRelv1',
+         'lep_jetPtRatiov2', 'lep_jetPtRelv2',
 
         #high-level lepton features
         #lep_jetBTagCSV', 
