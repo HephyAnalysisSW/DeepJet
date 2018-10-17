@@ -169,6 +169,8 @@ class InputData:
             }
         self.pf_getters = { 'neutral':{
             "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
+           "pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
+           "pfCand_neutral_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_phi"),
         "pfCand_neutral_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dxy_pf"),
          "pfCand_neutral_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dz_pf"),
    "pfCand_neutral_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_puppiWeight"),
@@ -177,6 +179,8 @@ class InputData:
         },
                             'charged':{
             "pfCand_charged_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_pt"),
+           "pfCand_charged_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_eta"),
+           "pfCand_charged_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_phi"),
         "pfCand_charged_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dxy_pf"),
          "pfCand_charged_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dz_pf"),
    "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
@@ -185,6 +189,8 @@ class InputData:
         },
                             'photon':{
              "pfCand_photon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_pt"),
+            "pfCand_photon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_eta"),
+            "pfCand_photon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_phi"),
          "pfCand_photon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dxy_pf"),
           "pfCand_photon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dz_pf"),
     "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
@@ -192,11 +198,15 @@ class InputData:
         },
                             'electron':{
                "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
+              "pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
+              "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
            "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
             "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
         },
                             'muon':{
                "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
+              "pfCand_muon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_eta"),
+              "pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
            "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
             "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
         },
@@ -229,10 +239,7 @@ class InputData:
             return self._pf_candidates
 
     # put all inputs together
-    def read_inputs( self, collection_name, branches, n_lep):
-        
-        # read the lepton features
-        features = [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in branches[0] ]
+    def pf_candidates_for_lepton( self, collection_name, n_lep):
 
         # read pf indices, then select the candidates
         pf_candidates = {}
@@ -240,23 +247,83 @@ class InputData:
             pf_indices            = self.get_pf_indices( flavor, collection_name, n_lep )
             pf_candidates[flavor] = [ self.pf_candidates[flavor][i] for i in pf_indices]
 
+            # now calculate the pf_candidate features that depend on the lepton in question
             lep_p4 = ROOT.TLorentzVector()
             lep_getters = self.feature_getters( collection_name )
             lep_p4.SetPtEtaPhiM( lep_getters["lep_pt"](self.event)[n_lep], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep], 0. )
+
+            name = "pfCand_"+flavor+"_%s_ptRelSorted"
+            ptRel_name = name%"ptRel"
+            dR_name    = name%"dR"
             for cand in pf_candidates[flavor]:
 
                 cand_p4 = ROOT.TLorentzVector()
-                name = "pfCand_"+flavor+"_%s_ptRelSorted"
                 cand_p4.SetPtEtaPhiM( 
-                    cand[name%"pt"], cand[name%"eta"],cand[name%"phi"],cand[name%"eta"],0.
+                    cand[name%"pt"], cand[name%"eta"],cand[name%"phi"],0.
                     )
                 
-                cand[name%"ptRel"] = ptRel( cand_p4, lep_p4 )
-                cand[name%"dR"]    = deltaR( cand[name%"eta"], cand[name%"phi"], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep]) 
- 
-        # now calculate the pf_candidate features that depend on the lepton in question
+                cand[ptRel_name] = ptRel( cand_p4, lep_p4 )
+                cand[dR_name]    = deltaR( cand[name%"eta"], cand[name%"phi"], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep])
 
-        return pf_indices
+            # ptRel sorting
+            pf_candidates[flavor].sort( key = lambda p:-p[ptRel_name] )
+ 
+        return pf_candidates
+
+    def features_for_lepton( self, collection_name, feature_branches, n_lep):
+        # read the lepton features
+        return [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in feature_branches ]
+
+    def prepare_inputs( self, collection_name, feature_branches, pf_branches, n_lep, means):
+        
+        features      = self.features_for_lepton( collection_name, feature_branches, n_lep )
+        pf_candidates = self.pf_candidates_for_lepton( collection_name, n_lep )
+         
+if __name__ == "__main__": 
+    # Information on the training
+    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
+    trainingInfo = TrainingInfo( training_directory )
+
+    # Input data
+    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/test/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
+    inputData = InputData( input_filename )
+
+    inputData.getEntry(0)
+    pf_candidates = inputData.pf_candidates_for_lepton("LepGood", 0)
+    features      =  inputData.features_for_lepton( "LepGood", trainingInfo.branches[0], 0 )
+
+    #res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
+
+#iPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_modulo_0_trainfile_1.root'
+#iFile = ROOT.TFile.Open(iPath, 'read')
+#iTree = iFile.Get('tree')
+#nEntries = iTree.GetEntries()
+#
+#branchList = [
+#'lep_pt',
+#'lep_eta',
+#'pfCand_neutral_ptRel_ptRelSorted',
+#'pfCand_charged_ptRel_ptRelSorted',
+#]
+#
+#
+#for branch in branchList:
+#    valList = []
+#
+#    for i in xrange(nEntries):
+#        iTree.GetEntry(i)
+#        val = iTree.GetLeaf(branch)
+#        valList.append([])
+#        for j in xrange(val.GetLen()):
+#            valList[i].append((val.GetValue(j)-meansDict[branch][0])/meansDict[branch][1])
+#
+#    print '%s %.10f %.10f %.7e' %(branch, meansDict[branch][0], meansDict[branch][1], -meansDict[branch][0]/meansDict[branch][1])
+#    for val in valList:
+#        print val
+#
+#iFile.Close()
+#
+        
 
 #         pfCand_neutral_ptRel_ptRelSorted
 #        pfCand_neutral_deltaR_ptRelSorted
@@ -322,46 +389,3 @@ class InputData:
 #                          SV_secDxyTracks
 #                          SV_maxD3dTracks
 #                          SV_secD3dTracks
-
-if __name__ == "__main__": 
-    # Information on the training
-    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
-    trainingInfo = TrainingInfo( training_directory )
-
-    # Input data
-    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/test/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
-    inputData = InputData( input_filename )
-
-    inputData.getEntry(0)
-    res  = inputData.read_inputs("LepGood", trainingInfo.branches, 0)
-    res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
-
-#iPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_modulo_0_trainfile_1.root'
-#iFile = ROOT.TFile.Open(iPath, 'read')
-#iTree = iFile.Get('tree')
-#nEntries = iTree.GetEntries()
-#
-#branchList = [
-#'lep_pt',
-#'lep_eta',
-#'pfCand_neutral_ptRel_ptRelSorted',
-#'pfCand_charged_ptRel_ptRelSorted',
-#]
-#
-#
-#for branch in branchList:
-#    valList = []
-#
-#    for i in xrange(nEntries):
-#        iTree.GetEntry(i)
-#        val = iTree.GetLeaf(branch)
-#        valList.append([])
-#        for j in xrange(val.GetLen()):
-#            valList[i].append((val.GetValue(j)-meansDict[branch][0])/meansDict[branch][1])
-#
-#    print '%s %.10f %.10f %.7e' %(branch, meansDict[branch][0], meansDict[branch][1], -meansDict[branch][0]/meansDict[branch][1])
-#    for val in valList:
-#        print val
-#
-#iFile.Close()
-#
