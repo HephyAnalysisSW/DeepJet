@@ -309,7 +309,7 @@ class InputData:
             # ptRel sorting
             pf_candidates[flavor].sort( key = lambda p:-p[ptRel_name] )
 
-            # filter lepton from list of candidates #FIXME: The following filter should be restricted to cand.pdgId==lep.pdgId
+            # filter lepton from list of candidates 
             if flavor=="electron" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==11:
                 pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%pdgId]!=lep_getters["lep_pdgId"], pf_candidates["electron"]) 
             if flavor=="muon" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==13:
