@@ -309,11 +309,11 @@ class InputData:
             # ptRel sorting
             pf_candidates[flavor].sort( key = lambda p:-p[ptRel_name] )
 
-            # filter lepton from list of candidates
+            # filter lepton from list of candidates #FIXME: The following filter should be restricted to cand.pdgId==lep.pdgId
             if flavor=="electron" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==11:
-                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4, pf_candidates["electron"]) 
+                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%pdgId]!=lep_getters["lep_pdgId"], pf_candidates["electron"]) 
             if flavor=="muon" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==13:
-                pf_candidates["muon"] = filter( lambda p: p[dR_name]>3*10**-4, pf_candidates["muon"]) 
+                pf_candidates["muon"]     = filter( lambda p: p[dR_name]>3*10**-4 or p[name%pdgId]!=lep_getters["lep_pdgId"], pf_candidates["muon"]) 
 
         return pf_candidates
 
@@ -397,10 +397,11 @@ if __name__ == "__main__":
 
     # loop over file
     nevents = inputData.chain.GetEntries()
-    for nevent in range( nevents ): 
+    for nevent in [9]:#range( nevents ): 
         inputData.getEntry(nevent)
         for i_lep in range( inputData.event.nLepGood ):
             if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
+            if not ( inputData.event.evt!=21370 and i_lep==1): continue
             print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
             features      =  inputData.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
