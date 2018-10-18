@@ -8,6 +8,7 @@ import shutil
 import uuid
 import operator
 from math import *
+import numpy as np
         
 # DeepJet & DeepJetCore
 from DeepJetCore.DataCollection import DataCollection
@@ -109,6 +110,9 @@ class InputData:
         self._nevent        = None
         self.means          = None
 
+        # verbosity
+        self.verbose = 0
+
     # Setters to store means and branches
     def setMeans( self, means ):
         self.means = means
@@ -133,6 +137,7 @@ class InputData:
                           "lep_pt":operator.attrgetter(collection_name+'_pt'),
                          "lep_eta":operator.attrgetter(collection_name+'_eta'),
                          "lep_phi":operator.attrgetter(collection_name+'_phi'),
+                        "lep_pdgId":operator.attrgetter(collection_name+'_pdgId'),
                          "lep_dxy":operator.attrgetter(collection_name+'_dxy'),
                           "lep_dz":operator.attrgetter(collection_name+'_dz'),
                         "lep_edxy":operator.attrgetter(collection_name+'_edxy'),
@@ -303,7 +308,13 @@ class InputData:
 
             # ptRel sorting
             pf_candidates[flavor].sort( key = lambda p:-p[ptRel_name] )
- 
+
+            # filter lepton from list of candidates
+            if flavor=="electron" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==11:
+                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4, pf_candidates["electron"]) 
+            if flavor=="muon" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==13:
+                pf_candidates["muon"] = filter( lambda p: p[dR_name]>3*10**-4, pf_candidates["muon"]) 
+
         return pf_candidates
 
     def features_for_lepton( self, collection_name, n_lep):
@@ -347,14 +358,14 @@ class InputData:
         pf_norm_res = self.pf_norm_zero  
         pf_res      = self.pf_zero  
         for i_flavor, (flavor, branches) in enumerate(zip(self.flavors, self.pf_branches)):
-            print "flavor %10s"%flavor,"cands %2i"%len(pf_candidates[flavor]),"max %2i"%self.lengths[i_flavor]
+            if self.verbose>=5: print "flavor %10s"%flavor,"cands %2i"%len(pf_candidates[flavor]),"max %2i"%self.lengths[i_flavor]
             for i_cand, cand in enumerate(pf_candidates[flavor][:self.lengths[i_flavor]]):
                 branch_res = [] 
                 for i_branch, branch in enumerate(branches):
         #            try:
                         pf_norm_res[i_flavor][i_cand][i_branch] = (cand[branch]-self.means[branch][0])/self.means[branch][1]
                         pf_res[i_flavor][i_cand][i_branch]      = cand[branch]
-                        print "  flavor %10s cand %2i  branch %40s val %6.4f mean %6.4f var %6.4f norm %6.4f" % ( flavor, i_cand, branch, cand[branch], self.means[branch][0], self.means[branch][1], pf_norm_res[i_flavor][i_cand][i_branch] )
+                        if self.verbose>=10: print "  flavor %10s cand %2i  branch %40s val %6.4f mean %6.4f var %6.4f norm %6.4f" % ( flavor, i_cand, branch, cand[branch], self.means[branch][0], self.means[branch][1], pf_norm_res[i_flavor][i_cand][i_branch] )
         #                branch_res.append(  (cand[b]-self.means[b][0])/self.means[b][1] )
         #            except KeyError as e:
         #                print b, "means",self.means.has_key(b), "cand",cand.has_key(b)
@@ -370,127 +381,38 @@ if __name__ == "__main__":
     trainingInfo = TrainingInfo( training_directory )
 
     # Input data
-    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/test/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
+    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
+    # specify means, features and branches
     inputData.setMeans( trainingInfo.means )
     inputData.setFeatureBranches( trainingInfo.branches[0] )
     inputData.setPFBranches( trainingInfo.branches[1:] )
+    inputData.verbose = 10
 
+    # Model
+    from keras.models import load_model
+    mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+
+    # loop over file
     nevents = inputData.chain.GetEntries()
     for nevent in range( nevents ): 
         inputData.getEntry(nevent)
-        #for i_lep in range( inputData.event.nLepGood ):
-        #    if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
-        #    print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
-        #    features      =  inputData.features_for_lepton( "LepGood", 0, trainingInfo.branches[0] )
-        #    features_normalized, pf_norm = inputData.prepare_inputs( "LepGood", 0)
-        for i_lep in range( inputData.event.nLepOther ):
-            if abs(inputData.event.LepOther_pdgId[i_lep])!=13: continue
-            print "LepOther %i/%i" % (i_lep, inputData.event.nLepOther)
+        for i_lep in range( inputData.event.nLepGood ):
+            if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
+            print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
+            features      =  inputData.features_for_lepton( "LepGood", i_lep )
+            features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
 
-            features      =  inputData.features_for_lepton( "LepOther", 0 )
-            features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepOther", 0)
-            break
-        break
-             
-    #pf_candidates = inputData.pf_candidates_for_lepton("LepGood", 0)
+            np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
+            print "Make prediction"
+            prediction = mymodel.predict( np_features )
+            print prediction
+#            break
+#        break
 
-    #res2 = inputData.read_inputs("LepOther", trainingInfo.branches, 0)
-
-#iPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_modulo_0_trainfile_1.root'
-#iFile = ROOT.TFile.Open(iPath, 'read')
-#iTree = iFile.Get('tree')
-#nEntries = iTree.GetEntries()
-#
-#branchList = [
-#'lep_pt',
-#'lep_eta',
-#'pfCand_neutral_ptRel_ptRelSorted',
-#'pfCand_charged_ptRel_ptRelSorted',
-#]
-#
-#
-#for branch in branchList:
-#    valList = []
-#
-#    for i in xrange(nEntries):
-#        iTree.GetEntry(i)
-#        val = iTree.GetLeaf(branch)
-#        valList.append([])
-#        for j in xrange(val.GetLen()):
-#            valList[i].append((val.GetValue(j)-meansDict[branch][0])/meansDict[branch][1])
-#
-#    print '%s %.10f %.10f %.7e' %(branch, meansDict[branch][0], meansDict[branch][1], -meansDict[branch][0]/meansDict[branch][1])
-#    for val in valList:
-#        print val
-#
-#iFile.Close()
-#
-        
-
-#         pfCand_neutral_ptRel_ptRelSorted
-#        pfCand_neutral_deltaR_ptRelSorted
-#            pfCand_neutral_pt_ptRelSorted
-#        pfCand_neutral_dxy_pf_ptRelSorted
-#         pfCand_neutral_dz_pf_ptRelSorted
-#   pfCand_neutral_puppiWeight_ptRelSorted
-#  pfCand_neutral_hcalFraction_ptRelSorted
-#        pfCand_neutral_fromPV_ptRelSorted
-
-#DL_pfCand_neutral_pt    pt for neutral pf candidates associated : 0 at: 0x478b850
-#DL_pfCand_neutral_dxy_pf    dxy for neutral pf candidates associated : 0 at: 0x478e5a0
-#DL_pfCand_neutral_dz_pf dz for neutral pf candidates associated : 0 at: 0x478ec10
-#DL_pfCand_neutral_puppiWeight   puppiWeight for neutral pf candidates associated : 0 at: 0x478d210
-#DL_pfCand_neutral_hcalFraction  hcalFraction for neutral pf candidates associated : 0 at: 0x478d8a0
-#DL_pfCand_neutral_fromPV    fromPV for neutral pf candidates associated : 0 at: 0x478df30
-
-
-#         pfCand_charged_ptRel_ptRelSorted
-#        pfCand_charged_deltaR_ptRelSorted
-#            pfCand_charged_pt_ptRelSorted
-#        pfCand_charged_dxy_pf_ptRelSorted
-#         pfCand_charged_dz_pf_ptRelSorted
-#   pfCand_charged_puppiWeight_ptRelSorted
-#  pfCand_charged_hcalFraction_ptRelSorted
-#        pfCand_charged_fromPV_ptRelSorted
-#
-#          pfCand_photon_ptRel_ptRelSorted
-#         pfCand_photon_deltaR_ptRelSorted
-#             pfCand_photon_pt_ptRelSorted
-#         pfCand_photon_dxy_pf_ptRelSorted
-#          pfCand_photon_dz_pf_ptRelSorted
-#    pfCand_photon_puppiWeight_ptRelSorted
-#   pfCand_photon_hcalFraction_ptRelSorted
-#         pfCand_photon_fromPV_ptRelSorted
-#
-#        pfCand_electron_ptRel_ptRelSorted
-#       pfCand_electron_deltaR_ptRelSorted
-#           pfCand_electron_pt_ptRelSorted
-#       pfCand_electron_dxy_pf_ptRelSorted
-#        pfCand_electron_dz_pf_ptRelSorted
-#
-#            pfCand_muon_ptRel_ptRelSorted
-#           pfCand_muon_deltaR_ptRelSorted
-#               pfCand_muon_pt_ptRelSorted
-#           pfCand_muon_dxy_pf_ptRelSorted
-#            pfCand_muon_dz_pf_ptRelSorted
-#
-#                                    SV_pt
-#                                  SV_chi2
-#                                  SV_ndof
-#                                   SV_dxy
-#                                  SV_edxy
-#                                  SV_ip3d
-#                                 SV_eip3d
-#                                 SV_sip3d
-#                              SV_cosTheta
-#                                SV_deltaR
-#                                 SV_jetPt
-#                                SV_jetEta
-#                                 SV_jetDR
-#                          SV_maxDxyTracks
-#                          SV_secDxyTracks
-#                          SV_maxD3dTracks
-#                          SV_secD3dTracks
+    ##benchmark features from Georg
+    #from outputfeatures import features as moertel_features
+    #prediction = mymodel.predict( moertel_features )
+    #print "Georg:\n",prediction
