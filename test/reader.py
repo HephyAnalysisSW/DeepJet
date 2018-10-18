@@ -381,7 +381,8 @@ if __name__ == "__main__":
     trainingInfo = TrainingInfo( training_directory )
 
     # Input data
-    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
+    #input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
+    input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
@@ -401,16 +402,17 @@ if __name__ == "__main__":
         inputData.getEntry(nevent)
         for i_lep in range( inputData.event.nLepGood ):
             if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
+            #if inputData.event.evt==21370:
             print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
+            print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
             features      =  inputData.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
-
+            for pf in pf_norm[2]:
+                print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
             prediction = mymodel.predict( np_features )
             print prediction
-#            break
-#        break
 
     ##benchmark features from Georg
     #from outputfeatures import features as moertel_features
