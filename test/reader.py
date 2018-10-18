@@ -7,6 +7,8 @@ import os
 import shutil
 import uuid
 import operator
+import copy
+
 from math import *
 import numpy as np
         
@@ -223,6 +225,7 @@ class InputData:
           "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
        "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
         "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
+        "pfCand_electron_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pdgId"),
         },
                             'muon':{
                "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
@@ -230,6 +233,7 @@ class InputData:
               "pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
            "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
             "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
+            "pfCand_muon_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pdgId"),
         },
                             'SV':{
                                     "SV_pt":operator.attrgetter("DL_SV_pt"),
@@ -311,9 +315,9 @@ class InputData:
 
             # filter lepton from list of candidates 
             if flavor=="electron" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==11:
-                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%pdgId]!=lep_getters["lep_pdgId"], pf_candidates["electron"]) 
+                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"], pf_candidates["electron"]) 
             if flavor=="muon" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==13:
-                pf_candidates["muon"]     = filter( lambda p: p[dR_name]>3*10**-4 or p[name%pdgId]!=lep_getters["lep_pdgId"], pf_candidates["muon"]) 
+                pf_candidates["muon"]     = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"], pf_candidates["muon"]) 
 
         return pf_candidates
 
@@ -333,7 +337,7 @@ class InputData:
                         branch_res.append( -self.means[b][0]/self.means[b][1] )
                     cand_res.append( branch_res )
                 self._pf_norm_zero.append( cand_res )
-        return self._pf_norm_zero
+        return copy.deepcopy(self._pf_norm_zero)
 
     @property 
     def pf_zero( self ):
@@ -347,7 +351,7 @@ class InputData:
                         branch_res.append( 0 )
                     cand_res.append( branch_res )
                 self._pf_zero.append( cand_res )
-        return self._pf_zero
+        return copy.deepcopy(self._pf_zero)
 
     def prepare_inputs( self, collection_name, n_lep):
         
@@ -381,7 +385,8 @@ if __name__ == "__main__":
     trainingInfo = TrainingInfo( training_directory )
 
     # Input data
-    input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
+    #input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
+    input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_1/treeProducerSusySingleLepton/tree.root"
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
@@ -397,21 +402,22 @@ if __name__ == "__main__":
 
     # loop over file
     nevents = inputData.chain.GetEntries()
-    for nevent in [9]:#range( nevents ): 
+    for nevent in range( nevents ): 
         inputData.getEntry(nevent)
         for i_lep in range( inputData.event.nLepGood ):
             if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
-            if not ( inputData.event.evt!=21370 and i_lep==1): continue
             print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
+            print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
             features      =  inputData.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
-
+            for pf in pf_norm[2]:
+                print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
             prediction = mymodel.predict( np_features )
             print prediction
-#            break
-#        break
+            if nevent == 9: break
+        if nevent==9: break
 
     ##benchmark features from Georg
     #from outputfeatures import features as moertel_features
