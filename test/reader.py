@@ -315,9 +315,9 @@ class InputData:
 
             # filter lepton from list of candidates 
             if flavor=="electron" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==11:
-                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"], pf_candidates["electron"]) 
+                pf_candidates["electron"] = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"](self.event)[n_lep], pf_candidates["electron"]) 
             if flavor=="muon" and abs(lep_getters["lep_pdgId"](self.event)[n_lep])==13:
-                pf_candidates["muon"]     = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"], pf_candidates["muon"]) 
+                pf_candidates["muon"]     = filter( lambda p: p[dR_name]>3*10**-4 or p[name%"pdgId"]!=lep_getters["lep_pdgId"](self.event)[n_lep], pf_candidates["muon"]) 
 
         return pf_candidates
 
@@ -411,10 +411,11 @@ if __name__ == "__main__":
             features      =  inputData.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
             print features_normalized[0]
-            for pf in pf_norm[4]:
-                print pf
+            #for pf in pf_norm[4]:
+            #    print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
+            print np_features[5]
             prediction = mymodel.predict( np_features )
             print prediction
         #    if nevent == 9: break
