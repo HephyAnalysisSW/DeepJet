@@ -394,7 +394,7 @@ if __name__ == "__main__":
     inputData.setMeans( trainingInfo.means )
     inputData.setFeatureBranches( trainingInfo.branches[0] )
     inputData.setPFBranches( trainingInfo.branches[1:] )
-    inputData.verbose = 10
+    inputData.verbose = 5
 
     # Model
     from keras.models import load_model
@@ -410,14 +410,15 @@ if __name__ == "__main__":
             print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
             features      =  inputData.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
-            for pf in pf_norm[2]:
+            print features_normalized[0]
+            for pf in pf_norm[4]:
                 print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
             prediction = mymodel.predict( np_features )
             print prediction
-            if nevent == 9: break
-        if nevent==9: break
+        #    if nevent == 9: break
+        #if nevent==9: break
 
     ##benchmark features from Georg
     #from outputfeatures import features as moertel_features
