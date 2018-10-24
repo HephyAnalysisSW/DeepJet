@@ -2,7 +2,6 @@
 
 import pickle
 import ROOT
-import numpy as np
 import os
 import shutil
 import uuid
@@ -80,7 +79,7 @@ class InputData:
     def __init__( self, filename, treename = "tree"):
 
         # read class from file
-        file_= ROOT.TFile( filename )
+        file_= ROOT.TFile.Open( filename.replace('root://hephyse.oeaw.ac.at', 'root://hephyse.oeaw.ac.at:11001') )
         tree = file_.Get(treename)
         # tmp locations
         self.tmpdir = "."
@@ -385,8 +384,15 @@ if __name__ == "__main__":
     trainingInfo = TrainingInfo( training_directory )
 
     # Input data
-    #input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
     input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
+
+#    sample_name = "DYJetsToLL_M50"
+#    files_dict = pickle.load(file('/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_files_dict.pkl'))
+#    sample_names = files_dict.keys()
+#    sample_names.sort()
+#    print "Available samples: %s" % (", ".join(sample_names))
+#    input_filename = files_dict[sample_name][0]
+
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 

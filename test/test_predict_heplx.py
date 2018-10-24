@@ -15,7 +15,7 @@ import keras.backend as K
 #]
 
 from keras.models import load_model
-mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+#mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
 # new training
 #mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/TestTraining/KERAS_model.h5")
 
@@ -24,15 +24,15 @@ mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20
 #    print f
 #    print m.get_weights()
 
-#from keras.models import model_from_json
-#import pickle
-#import numpy as np
-#mymodel = model_from_json( pickle.load(file('model.pkl'))) 
-#weights = pickle.load(file('weights.pkl'))
-##_weights = [np.nan_to_num(weights[0])] + weights[1:]
-#_weights = map( np.nan_to_num, weights)
-#mymodel.set_weights(_weights)
-##
+from keras.models import model_from_json
+import pickle
+import numpy as np
+mymodel = model_from_json( pickle.load(file('model.pkl'))) 
+weights = pickle.load(file('weights.pkl'))
+#_weights = [np.nan_to_num(weights[0])] + weights[1:]
+_weights = map( np.nan_to_num, weights)
+mymodel.set_weights(_weights)
+#
 from multi_l_features import features
 ##from new_training_features import features
 print "Make prediction"
