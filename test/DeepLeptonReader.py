@@ -379,7 +379,6 @@ if __name__ == "__main__":
     evaluator.setPFBranches(      branches[1:] )
     evaluator.verbose = 5
 
-
     # loop over file
     nevents = inputData.chain.GetEntries()
     for nevent in range( nevents ): 
@@ -390,8 +389,6 @@ if __name__ == "__main__":
             print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
             features      =  evaluator.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = evaluator.prepare_inputs( "LepGood", i_lep)
-            #for pf in pf_norm[4]:
-            #    print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
             prediction = mymodel.predict( np_features )
