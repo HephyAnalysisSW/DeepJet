@@ -52,13 +52,13 @@ class TrainData_deepLeptons_Electrons_2016(TrainData_fullTruth):
         'lep_mvaIdSpring16',
         ])
 
-        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],5)
-        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],20)
-        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],10)
+        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_puppiWeight', 'pfCand_neutral_fromPV'],5)
+        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_puppiWeight', 'pfCand_charged_fromPV', 'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf',],20)
+        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_puppiWeight',  'pfCand_photon_fromPV' ],10)
         self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],3)
         self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],3)
         self.addBranches([ 'SV_pt', 'SV_chi2', 'SV_ndof', 'SV_dxy', 'SV_edxy', 'SV_ip3d', 'SV_eip3d', 'SV_sip3d', 'SV_cosTheta', 'SV_deltaR',
-                          'SV_jetPt', 'SV_jetEta', 'SV_jetDR', 'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
+                           'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
 
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
         from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
@@ -190,8 +190,8 @@ class TrainData_deepLeptons_Electrons_sorted_2016(TrainData_fullTruth):
         self.addBranches(['pfCand_photon_ptRel_ptRelSorted',   'pfCand_photon_deltaR_ptRelSorted',   'pfCand_photon_pt_ptRelSorted',   'pfCand_photon_puppiWeight_ptRelSorted',  'pfCand_photon_fromPV_ptRelSorted',],10)
         self.addBranches(['pfCand_electron_ptRel_ptRelSorted', 'pfCand_electron_deltaR_ptRelSorted', 'pfCand_electron_pt_ptRelSorted', 'pfCand_electron_dxy_pf_ptRelSorted', 'pfCand_electron_dz_pf_ptRelSorted',],3)
         self.addBranches(['pfCand_muon_ptRel_ptRelSorted',     'pfCand_muon_deltaR_ptRelSorted',     'pfCand_muon_pt_ptRelSorted',     'pfCand_muon_dxy_pf_ptRelSorted',     'pfCand_muon_dz_pf_ptRelSorted',    ],3)
-        self.addBranches([ 'SV_pt_ptSorted', 'SV_chi2_ptSorted', 'SV_ndof_ptSorted', 'SV_dxy_ptSorted', 'SV_edxy_ptSorted', 'SV_ip3d_ptSorted', 'SV_eip3d_ptSorted', 'SV_sip3d_ptSorted', 'SV_cosTheta_ptSorted', 'SV_deltaR_ptSorted',
-                          'SV_jetPt_ptSorted', 'SV_jetEta_ptSorted', 'SV_jetDR_ptSorted', 'SV_maxDxyTracks_ptSorted', 'SV_secDxyTracks_ptSorted', 'SV_maxD3dTracks_ptSorted', 'SV_secD3dTracks_ptSorted'],4)
+        self.addBranches([ 'SV_pt_ptSorted', 'SV_chi2_ptSorted', 'SV_ndof_ptSorted', 'SV_dxy_ptSorted', 'SV_edxy_ptSorted', 'SV_ip3d_ptSorted', 'SV_eip3d_ptSorted', 'SV_sip3d_ptSorted', 
+                           'SV_cosTheta_ptSorted', 'SV_deltaR_ptSorted', 'SV_maxDxyTracks_ptSorted', 'SV_secDxyTracks_ptSorted', 'SV_maxD3dTracks_ptSorted', 'SV_secD3dTracks_ptSorted'],4)
 
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
         from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
@@ -320,13 +320,13 @@ class TrainData_deepLeptons_Muons_2016(TrainData_fullTruth):
         'lep_nStations_float', 
         ])
 
-        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_dxy_pf',  'pfCand_neutral_dz_pf', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_hcalFraction', 'pfCand_neutral_fromPV'],5)
-        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf', 'pfCand_charged_puppiWeight', 'pfCand_charged_hcalFraction', 'pfCand_charged_fromPV'],20)
-        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_dxy_pf',   'pfCand_photon_dz_pf',  'pfCand_photon_puppiWeight',  'pfCand_photon_hcalFraction',  'pfCand_photon_fromPV' ],10)
+        self.addBranches(['pfCand_neutral_ptRel',  'pfCand_neutral_deltaR',  'pfCand_neutral_pt',  'pfCand_neutral_puppiWeight', 'pfCand_neutral_fromPV'],5)
+        self.addBranches(['pfCand_charged_ptRel',  'pfCand_charged_deltaR',  'pfCand_charged_pt',  'pfCand_charged_puppiWeight', 'pfCand_charged_fromPV', 'pfCand_charged_dxy_pf',  'pfCand_charged_dz_pf',],20)
+        self.addBranches(['pfCand_photon_ptRel',   'pfCand_photon_deltaR',   'pfCand_photon_pt',   'pfCand_photon_puppiWeight',  'pfCand_photon_fromPV' ],10)
         self.addBranches(['pfCand_electron_ptRel', 'pfCand_electron_deltaR', 'pfCand_electron_pt', 'pfCand_electron_dxy_pf', 'pfCand_electron_dz_pf'],3)
         self.addBranches(['pfCand_muon_ptRel',     'pfCand_muon_deltaR',     'pfCand_muon_pt',     'pfCand_muon_dxy_pf',     'pfCand_muon_dz_pf'    ],3)
         self.addBranches([ 'SV_pt', 'SV_chi2', 'SV_ndof', 'SV_dxy', 'SV_edxy', 'SV_ip3d', 'SV_eip3d', 'SV_sip3d', 'SV_cosTheta', 'SV_deltaR',
-                          'SV_jetPt', 'SV_jetEta', 'SV_jetDR', 'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
+                           'SV_maxDxyTracks', 'SV_secDxyTracks', 'SV_maxD3dTracks', 'SV_secD3dTracks'],4)
 
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
         from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
@@ -593,8 +593,8 @@ class TrainData_deepLeptons_Muons_ptRelSorted_2016(TrainData_fullTruth):
         self.addBranches(['pfCand_photon_ptRel_ptRelSorted',   'pfCand_photon_deltaR_ptRelSorted',   'pfCand_photon_pt_ptRelSorted',   'pfCand_photon_puppiWeight_ptRelSorted',  'pfCand_photon_fromPV_ptRelSorted',],10)
         self.addBranches(['pfCand_electron_ptRel_ptRelSorted', 'pfCand_electron_deltaR_ptRelSorted', 'pfCand_electron_pt_ptRelSorted', 'pfCand_electron_dxy_pf_ptRelSorted', 'pfCand_electron_dz_pf_ptRelSorted',],3)
         self.addBranches(['pfCand_muon_ptRel_ptRelSorted',     'pfCand_muon_deltaR_ptRelSorted',     'pfCand_muon_pt_ptRelSorted',     'pfCand_muon_dxy_pf_ptRelSorted',     'pfCand_muon_dz_pf_ptRelSorted',    ],3)
-        self.addBranches([ 'SV_pt_ptSorted', 'SV_chi2_ptSorted', 'SV_ndof_ptSorted', 'SV_dxy_ptSorted', 'SV_edxy_ptSorted', 'SV_ip3d_ptSorted', 'SV_eip3d_ptSorted', 'SV_sip3d_ptSorted', 'SV_cosTheta_ptSorted', 'SV_deltaR_ptSorted',
-                          'SV_jetPt_ptSorted', 'SV_jetEta_ptSorted', 'SV_jetDR_ptSorted', 'SV_maxDxyTracks_ptSorted', 'SV_secDxyTracks_ptSorted', 'SV_maxD3dTracks_ptSorted', 'SV_secD3dTracks_ptSorted'],4)
+        self.addBranches([ 'SV_pt_ptSorted', 'SV_chi2_ptSorted', 'SV_ndof_ptSorted', 'SV_dxy_ptSorted', 'SV_edxy_ptSorted', 'SV_ip3d_ptSorted', 'SV_eip3d_ptSorted', 'SV_sip3d_ptSorted', 
+                           'SV_cosTheta_ptSorted', 'SV_deltaR_ptSorted', 'SV_maxDxyTracks_ptSorted', 'SV_secDxyTracks_ptSorted', 'SV_maxD3dTracks_ptSorted', 'SV_secD3dTracks_ptSorted'],4)
 
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
         from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
@@ -684,6 +684,4 @@ class TrainData_deepLeptons_Muons_ptRelSorted_2016(TrainData_fullTruth):
         self.w=[weights, weights]
         self.x=[x_global,x_npf, x_cpf, x_ppf, x_epf, x_mpf, x_sv]
         self.y=[alltruth]
-
-
 
