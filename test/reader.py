@@ -10,31 +10,8 @@ import copy
 
 from math import *
 import numpy as np
-        
-def ptRel(p4,axis):
-    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
-    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
-    return o.Perp(a)
-
-def deltaPhi(phi1, phi2):
-    dphi = phi2-phi1
-    if  dphi > pi:
-        dphi -= 2.0*pi
-    if dphi <= -pi:
-        dphi += 2.0*pi
-    return abs(dphi)
-
-def deltaR2(eta1, phi1, eta2, phi2):
-    return deltaPhi(phi1, phi2)**2 + (eta1 - eta2)**2
-
-def deltaR(*args, **kwargs):
-    return sqrt(deltaR2(*args, **kwargs))
 
 class InputData:
-
-    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
-
     def __init__( self, filename, treename = "tree"):
 
         # read class from file
@@ -63,23 +40,12 @@ class InputData:
         self.event = getattr(ROOT, "%s" % self.tmpname )( self.chain )
 
         self.chain.GetEntries()
-        self.init_getters()
 
-        # dict cache for all pf candidates in the event
-        self._pf_candidates = {} 
-        self._nevent        = None
-        self.means          = None
+        self.nevent = None
 
-        # verbosity
-        self.verbose = 0
-
-    # Setters to store means and branches
-    def setMeans( self, means ):
-        self.means = means
-    def setFeatureBranches( self, feature_branches ):
-        self.feature_branches = feature_branches
-    def setPFBranches( self, pf_branches ):
-        self.pf_branches = pf_branches
+    def getEntry( self, nevent ):
+        self.chain.GetEntry( nevent )
+        self.nevent = nevent
 
     # Clean up the tmp files
     def __del__( self ):
@@ -88,6 +54,53 @@ class InputData:
            filename = os.path.join( self.tmpdir, file_ )
            if os.path.exists( filename ):
                 os.remove( filename )
+        
+def ptRel(p4,axis):
+    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
+    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
+    return o.Perp(a)
+
+def deltaPhi(phi1, phi2):
+    dphi = phi2-phi1
+    if  dphi > pi:
+        dphi -= 2.0*pi
+    if dphi <= -pi:
+        dphi += 2.0*pi
+    return abs(dphi)
+
+def deltaR2(eta1, phi1, eta2, phi2):
+    return deltaPhi(phi1, phi2)**2 + (eta1 - eta2)**2
+
+def deltaR(*args, **kwargs):
+    return sqrt(deltaR2(*args, **kwargs))
+
+class Evaluator:
+
+    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
+    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
+
+    def __init__( self, event):    
+
+        self.event = event
+
+        self.init_getters()
+
+        # dict cache for all pf candidates in the event
+        self._pf_candidates = {} 
+        self.means          = None
+
+        # verbosity
+        self.verbose = 0
+
+        self._nevent = None
+
+    # Setters to store means and branches
+    def setMeans( self, means ):
+        self.means = means
+    def setFeatureBranches( self, feature_branches ):
+        self.feature_branches = feature_branches
+    def setPFBranches( self, pf_branches ):
+        self.pf_branches = pf_branches
 
     # Store a list of functors that retrieve the correct branch from the event
     def feature_getters( self, collection_name):
@@ -222,10 +235,6 @@ class InputData:
         mask_ = (1<<n_lep)
         return filter( lambda i: mask_&pf_mask[i], range(n))
 
-    def getEntry( self, nevent ):
-        self.chain.GetEntry( nevent )
-        self.nevent = nevent
-
     def _get_all_pf_candidates( self, flavor):
         n = self.pf_size_getters[flavor](self.event)
         att_getters = self.pf_getters[flavor]
@@ -234,11 +243,11 @@ class InputData:
     # cached version of get_all_pf_candidates
     @property
     def pf_candidates( self ):
-        if self._nevent == self.nevent:
+        if self._nevent == self.event.evt:
             return self._pf_candidates
         else:
             self._pf_candidates = {flavor: self._get_all_pf_candidates(flavor) for flavor in self.flavors}
-            self._nevent = self.nevent 
+            self._nevent = self.event.evt
             return self._pf_candidates
 
     # put all inputs together
@@ -362,11 +371,13 @@ if __name__ == "__main__":
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
+    evaluator = Evaluator( inputData.event )
+
     # specify means, features and branches
-    inputData.setMeans( means )
-    inputData.setFeatureBranches( branches[0] )
-    inputData.setPFBranches(      branches[1:] )
-    inputData.verbose = 5
+    evaluator.setMeans( means )
+    evaluator.setFeatureBranches( branches[0] )
+    evaluator.setPFBranches(      branches[1:] )
+    evaluator.verbose = 5
 
 
     # loop over file
@@ -377,14 +388,12 @@ if __name__ == "__main__":
             if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
             print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
             print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
-            features      =  inputData.features_for_lepton( "LepGood", i_lep )
-            features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
-            print features_normalized[0]
+            features      =  evaluator.features_for_lepton( "LepGood", i_lep )
+            features_normalized, pf_norm, pf = evaluator.prepare_inputs( "LepGood", i_lep)
             #for pf in pf_norm[4]:
             #    print pf
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
-            print np_features[5]
             prediction = mymodel.predict( np_features )
             print prediction
         #    if nevent == 9: break
