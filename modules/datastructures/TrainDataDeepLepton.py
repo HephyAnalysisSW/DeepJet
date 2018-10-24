@@ -20,8 +20,8 @@ class TrainDataDeepLepton(TrainData):
         #setting DeepJet specific defaults
         self.treename="tree"
         #self.undefTruth=['isUndefined']
-        self.referenceclass='lep_isPromptId'
-        self.truthclasses=['lep_isPromptId','lep_isNonPromptId','lep_isFakeId']
+        self.referenceclass='lep_isPromptId_Training'
+        self.truthclasses=['lep_isPromptId_Training','lep_isNonPromptId_Training','lep_isFakeId_Training']
         
         
         #standard branches
@@ -117,11 +117,11 @@ class TrainData_fullTruth(TrainDataDeepLepton):
         
     def reduceTruth(self, tuple_in):
         
-        self.reducedtruthclasses=['lep_isPromptId','lep_isNonPromptId','lep_isFakeId']
+        self.reducedtruthclasses=['lep_isPromptId_Training','lep_isNonPromptId_Training','lep_isFakeId_Training']
         if tuple_in is not None:
-            prompt = tuple_in['lep_isPromptId'].view(numpy.ndarray)
-            nonprompt = tuple_in['lep_isNonPromptId'].view(numpy.ndarray)
-            fake = tuple_in['lep_isFakeId'].view(numpy.ndarray)
+            prompt = tuple_in['lep_isPromptId_Training'].view(numpy.ndarray)
+            nonprompt = tuple_in['lep_isNonPromptId_Training'].view(numpy.ndarray)
+            fake = tuple_in['lep_isFakeId_Training'].view(numpy.ndarray)
             
             return numpy.vstack((prompt,nonprompt,fake)).transpose()    
   

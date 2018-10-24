@@ -27,10 +27,10 @@ if newtraining:
                        )
 
 
-    train.train_data.maxFilesOpen=25 #5
+    train.train_data.maxFilesOpen=5 #5
     
     print(train.keras_model.summary())
-    model,history = train.trainModel(nepochs=30, #3, #4 
+    model,history = train.trainModel(nepochs=2, #3, #4 
                                      batchsize=10000, #64, #512, #1024, #2048, #4096
                                      stop_patience=300, 
                                      lr_factor=0.5, 
@@ -38,7 +38,7 @@ if newtraining:
                                      lr_epsilon=0.00005, 
                                      lr_cooldown=6, 
                                      lr_minimum=0.00005, 
-                                     maxqsize=25
+                                     maxqsize=5
                                      )
     
     
