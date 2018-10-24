@@ -14,7 +14,7 @@ if newtraining:
     from models import model_deepLeptonReference
     
     #train.setModel(model_deepLeptonReference_reduced,dropoutRate=0.5,momentum=0.2)
-    train.setModel(model_deepLeptonReference,dropoutRate=0.90,momentum=0.2)
+    train.setModel(model_deepLeptonReference,dropoutRate=0.50,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
@@ -27,18 +27,18 @@ if newtraining:
                        )
 
 
-    train.train_data.maxFilesOpen=25 #5
+    train.train_data.maxFilesOpen=5 #5
     
     print(train.keras_model.summary())
-    model,history = train.trainModel(nepochs=60, #3, #4 
+    model,history = train.trainModel(nepochs=2, #3, #4 
                                      batchsize=10000, #64, #512, #1024, #2048, #4096
                                      stop_patience=300, 
                                      lr_factor=0.5, 
-                                     lr_patience=1, 
+                                     lr_patience=3, 
                                      lr_epsilon=0.00005, 
                                      lr_cooldown=6, 
                                      lr_minimum=0.00005, 
-                                     maxqsize=25
+                                     maxqsize=5
                                      )
     
     
