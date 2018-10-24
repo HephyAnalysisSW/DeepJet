@@ -19,10 +19,11 @@ fd.close()
 meansDict={}
 
 for i in xrange(len(means[0])):
-        meansDict.update({means.dtype.names[i]: [means[0][i], means[1][i]]})
+        if means[0][i] == 0. and means[1][i] == 1.:
+            print means.dtype.names[i], means[0][i], means[1][i]
+            meansDict.update({means.dtype.names[i]: [means[0][i], means[1][i]]})
 
-for mean in meansDict:
-    print mean
+
 
 #iPath='/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v1/2016/muo/pt_15_to_inf/DYVsQCD_ptRelSorted/mini_modulo_0_trainfile_1.root'
 #iFile = ROOT.TFile.Open(iPath, 'read')
