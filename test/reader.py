@@ -11,9 +11,6 @@ import copy
 from math import *
 import numpy as np
         
-# DeepJet & DeepJetCore
-from DeepJetCore.DataCollection import DataCollection
-
 def ptRel(p4,axis):
     a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
     o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
@@ -32,44 +29,6 @@ def deltaR2(eta1, phi1, eta2, phi2):
 
 def deltaR(*args, **kwargs):
     return sqrt(deltaR2(*args, **kwargs))
-
-class TrainingInfo:
-
-    def __init__( self, directory ):
-
-        filename = os.path.join( directory, 'dataCollection.dc')
-        file_    = open( filename, 'rb')
-
-        self.samples    =   pickle.load(file_)
-        sampleentries   =   pickle.load(file_)
-        originRoots     =   pickle.load(file_)
-        nsamples        =   pickle.load(file_)
-        useweights      =   pickle.load(file_)
-        batchsize       =   pickle.load(file_)
-        dataclass       =   pickle.load(file_)
-        weighter        =   pickle.load(file_)
-        self._means     =   pickle.load(file_)
-        file_.close()
-
-
-        # Get means dictionary
-        self.means = {name : (self._means[0][i], self._means[1][i]) for i, name in enumerate( self._means.dtype.names) }
-
-        # Get DeepJetCore DataCollection
-        self.dataCollection = DataCollection()
-        self.dataCollection.readFromFile(filename) 
-
-        # Reading first sample & get branch structure
-        fullpath = self.dataCollection.getSamplePath(self.samples[0])
-        self.dataCollection.dataclass.readIn(fullpath)
-        self.branches = self.dataCollection.dataclass.branches
-
-        print "Branches:"
-        for i in range(len(self.branches)):
-            print "Collection", i
-            for i_b, b in enumerate(self.branches[i]):
-                print "  branch %2i/%2i %40s   mean %8.5f var %8.5f" %( i, i_b, b, self.means[b][0], self.means[b][1])
-            print 
 
 class InputData:
 
@@ -379,32 +338,36 @@ class InputData:
         return features_normalized, pf_norm_res, pf_res 
 
 if __name__ == "__main__": 
-    # Information on the training
-    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
-    trainingInfo = TrainingInfo( training_directory )
+    # Information on the training (works only in DL)
+    #from trainingInfo import TrainingInfo
+    #training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
+    #trainingInfo = TrainingInfo( training_directory )
+    # means = trainingInfo.means
+
+    # Model
+    from keras.models import load_model
+    mymodel           =       load_model("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+    branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
+
+    # patch weights
+    weights         = mymodel.get_weights()
+    weights_patched = map( np.nan_to_num, weights )
+    mymodel.set_weights( weights_patched )
+    if not np.array_equal(weights, weights_patched):
+        print "Warning! Had to remove NaNs/Infs!"
 
     # Input data
     input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
-
-#    sample_name = "DYJetsToLL_M50"
-#    files_dict = pickle.load(file('/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_files_dict.pkl'))
-#    sample_names = files_dict.keys()
-#    sample_names.sort()
-#    print "Available samples: %s" % (", ".join(sample_names))
-#    input_filename = files_dict[sample_name][0]
 
     inputData = InputData( input_filename )
     inputData.getEntry(0)
 
     # specify means, features and branches
-    inputData.setMeans( trainingInfo.means )
-    inputData.setFeatureBranches( trainingInfo.branches[0] )
-    inputData.setPFBranches( trainingInfo.branches[1:] )
+    inputData.setMeans( means )
+    inputData.setFeatureBranches( branches[0] )
+    inputData.setPFBranches(      branches[1:] )
     inputData.verbose = 5
 
-    # Model
-    from keras.models import load_model
-    mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
 
     # loop over file
     nevents = inputData.chain.GetEntries()

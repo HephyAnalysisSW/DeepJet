@@ -42,10 +42,14 @@ class TrainingInfo:
             print "Collection", i
             for i_b, b in enumerate(self.branches[i]):
                 print "  branch %2i/%2i %40s   mean %8.5f var %8.5f" %( i, i_b, b, self.means[b][0], self.means[b][1])
-            print 
+            print
 
+    def dump( self, filename):
+        pickle.dump( [ self.branches, self.means], file( filename, 'w' ) )
+        print "Written", filename
 
 if __name__ == "__main__": 
     # Information on the training
-    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
+    training_directory = '/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/'
     trainingInfo = TrainingInfo( training_directory )
+    trainingInfo.dump( os.path.join( training_directory, 'branches_means_vars.pkl' ) )
