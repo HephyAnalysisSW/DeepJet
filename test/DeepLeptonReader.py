@@ -2,7 +2,6 @@
 
 import pickle
 import ROOT
-import numpy as np
 import os
 import shutil
 import uuid
@@ -11,76 +10,12 @@ import copy
 
 from math import *
 import numpy as np
-        
-# DeepJet & DeepJetCore
-from DeepJetCore.DataCollection import DataCollection
-
-def ptRel(p4,axis):
-    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
-    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
-    return o.Perp(a)
-
-def deltaPhi(phi1, phi2):
-    dphi = phi2-phi1
-    if  dphi > pi:
-        dphi -= 2.0*pi
-    if dphi <= -pi:
-        dphi += 2.0*pi
-    return abs(dphi)
-
-def deltaR2(eta1, phi1, eta2, phi2):
-    return deltaPhi(phi1, phi2)**2 + (eta1 - eta2)**2
-
-def deltaR(*args, **kwargs):
-    return sqrt(deltaR2(*args, **kwargs))
-
-class TrainingInfo:
-
-    def __init__( self, directory ):
-
-        filename = os.path.join( directory, 'dataCollection.dc')
-        file_    = open( filename, 'rb')
-
-        self.samples    =   pickle.load(file_)
-        sampleentries   =   pickle.load(file_)
-        originRoots     =   pickle.load(file_)
-        nsamples        =   pickle.load(file_)
-        useweights      =   pickle.load(file_)
-        batchsize       =   pickle.load(file_)
-        dataclass       =   pickle.load(file_)
-        weighter        =   pickle.load(file_)
-        self._means     =   pickle.load(file_)
-        file_.close()
-
-
-        # Get means dictionary
-        self.means = {name : (self._means[0][i], self._means[1][i]) for i, name in enumerate( self._means.dtype.names) }
-
-        # Get DeepJetCore DataCollection
-        self.dataCollection = DataCollection()
-        self.dataCollection.readFromFile(filename) 
-
-        # Reading first sample & get branch structure
-        fullpath = self.dataCollection.getSamplePath(self.samples[0])
-        self.dataCollection.dataclass.readIn(fullpath)
-        self.branches = self.dataCollection.dataclass.branches
-
-        print "Branches:"
-        for i in range(len(self.branches)):
-            print "Collection", i
-            for i_b, b in enumerate(self.branches[i]):
-                print "  branch %2i/%2i %40s   mean %8.5f var %8.5f" %( i, i_b, b, self.means[b][0], self.means[b][1])
-            print 
 
 class InputData:
-
-    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
-
     def __init__( self, filename, treename = "tree"):
 
         # read class from file
-        file_= ROOT.TFile( filename )
+        file_= ROOT.TFile.Open( filename.replace('root://hephyse.oeaw.ac.at', 'root://hephyse.oeaw.ac.at:11001') )
         tree = file_.Get(treename)
         # tmp locations
         self.tmpdir = "."
@@ -105,23 +40,12 @@ class InputData:
         self.event = getattr(ROOT, "%s" % self.tmpname )( self.chain )
 
         self.chain.GetEntries()
-        self.init_getters()
 
-        # dict cache for all pf candidates in the event
-        self._pf_candidates = {} 
-        self._nevent        = None
-        self.means          = None
+        self.nevent = None
 
-        # verbosity
-        self.verbose = 0
-
-    # Setters to store means and branches
-    def setMeans( self, means ):
-        self.means = means
-    def setFeatureBranches( self, feature_branches ):
-        self.feature_branches = feature_branches
-    def setPFBranches( self, pf_branches ):
-        self.pf_branches = pf_branches
+    def getEntry( self, nevent ):
+        self.chain.GetEntry( nevent )
+        self.nevent = nevent
 
     # Clean up the tmp files
     def __del__( self ):
@@ -130,6 +54,53 @@ class InputData:
            filename = os.path.join( self.tmpdir, file_ )
            if os.path.exists( filename ):
                 os.remove( filename )
+        
+def ptRel(p4,axis):
+    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
+    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
+    return o.Perp(a)
+
+def deltaPhi(phi1, phi2):
+    dphi = phi2-phi1
+    if  dphi > pi:
+        dphi -= 2.0*pi
+    if dphi <= -pi:
+        dphi += 2.0*pi
+    return abs(dphi)
+
+def deltaR2(eta1, phi1, eta2, phi2):
+    return deltaPhi(phi1, phi2)**2 + (eta1 - eta2)**2
+
+def deltaR(*args, **kwargs):
+    return sqrt(deltaR2(*args, **kwargs))
+
+class Evaluator:
+
+    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
+    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
+
+    def __init__( self, event):    
+
+        self.event = event
+
+        self.init_getters()
+
+        # dict cache for all pf candidates in the event
+        self._pf_candidates = {} 
+        self.means          = None
+
+        # verbosity
+        self.verbose = 0
+
+        self._nevent = None
+
+    # Setters to store means and branches
+    def setMeans( self, means ):
+        self.means = means
+    def setFeatureBranches( self, feature_branches ):
+        self.feature_branches = feature_branches
+    def setPFBranches( self, pf_branches ):
+        self.pf_branches = pf_branches
 
     # Store a list of functors that retrieve the correct branch from the event
     def feature_getters( self, collection_name):
@@ -264,10 +235,6 @@ class InputData:
         mask_ = (1<<n_lep)
         return filter( lambda i: mask_&pf_mask[i], range(n))
 
-    def getEntry( self, nevent ):
-        self.chain.GetEntry( nevent )
-        self.nevent = nevent
-
     def _get_all_pf_candidates( self, flavor):
         n = self.pf_size_getters[flavor](self.event)
         att_getters = self.pf_getters[flavor]
@@ -276,11 +243,11 @@ class InputData:
     # cached version of get_all_pf_candidates
     @property
     def pf_candidates( self ):
-        if self._nevent == self.nevent:
+        if self._nevent == self.event.evt:
             return self._pf_candidates
         else:
             self._pf_candidates = {flavor: self._get_all_pf_candidates(flavor) for flavor in self.flavors}
-            self._nevent = self.nevent 
+            self._nevent = self.event.evt
             return self._pf_candidates
 
     # put all inputs together
@@ -380,25 +347,37 @@ class InputData:
         return features_normalized, pf_norm_res, pf_res 
 
 if __name__ == "__main__": 
-    # Information on the training
-    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
-    trainingInfo = TrainingInfo( training_directory )
-
-    # Input data
-    #input_filename = "/afs/hephy.at/work/r/rschoefbeck/CMS/tmp/CMSSW_9_4_6_patch1/src/CMGTools/StopsDilepton/cfg/full_events/WZTo3LNu_amcatnlo/treeProducerSusySingleLepton/tree.root"
-    input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
-    inputData = InputData( input_filename )
-    inputData.getEntry(0)
-
-    # specify means, features and branches
-    inputData.setMeans( trainingInfo.means )
-    inputData.setFeatureBranches( trainingInfo.branches[0] )
-    inputData.setPFBranches( trainingInfo.branches[1:] )
-    inputData.verbose = 5
+    # Information on the training (works only in DL)
+    #from trainingInfo import TrainingInfo
+    #training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTrainData'
+    #trainingInfo = TrainingInfo( training_directory )
+    # means = trainingInfo.means
 
     # Model
     from keras.models import load_model
-    mymodel = load_model("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181013/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+    mymodel           =       load_model("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+    branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
+
+    # patch weights
+    weights         = mymodel.get_weights()
+    weights_patched = map( np.nan_to_num, weights )
+    mymodel.set_weights( weights_patched )
+    if not np.array_equal(weights, weights_patched):
+        print "Warning! Had to remove NaNs/Infs!"
+
+    # Input data
+    input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
+
+    inputData = InputData( input_filename )
+    inputData.getEntry(0)
+
+    evaluator = Evaluator( inputData.event )
+
+    # specify means, features and branches
+    evaluator.setMeans( means )
+    evaluator.setFeatureBranches( branches[0] )
+    evaluator.setPFBranches(      branches[1:] )
+    evaluator.verbose = 5
 
     # loop over file
     nevents = inputData.chain.GetEntries()
@@ -408,14 +387,10 @@ if __name__ == "__main__":
             if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
             print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
             print "nevent %i evt %20i lumi %8i run %8i" %( nevent, inputData.event.evt, inputData.event.lumi, inputData.event.run )
-            features      =  inputData.features_for_lepton( "LepGood", i_lep )
-            features_normalized, pf_norm, pf = inputData.prepare_inputs( "LepGood", i_lep)
-            print features_normalized[0]
-            #for pf in pf_norm[4]:
-            #    print pf
+            features      =  evaluator.features_for_lepton( "LepGood", i_lep )
+            features_normalized, pf_norm, pf = evaluator.prepare_inputs( "LepGood", i_lep)
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
             print "Make prediction"
-            print np_features[5]
             prediction = mymodel.predict( np_features )
             print prediction
         #    if nevent == 9: break
