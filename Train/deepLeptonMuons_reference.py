@@ -18,7 +18,7 @@ if newtraining:
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
-    train.compileModel(learningrate=0.005, #0.001,
+    train.compileModel(learningrate=0.001, #0.001,
                        loss=['categorical_crossentropy'],
                        #loss=['categorical_crossentropy',loss_meansquared],
                        metrics=['accuracy'],
@@ -34,10 +34,10 @@ if newtraining:
                                      batchsize=10000, #64, #512, #1024, #2048, #4096
                                      stop_patience=300, 
                                      lr_factor=0.5, 
-                                     lr_patience=2, 
-                                     lr_epsilon=0.00005, 
+                                     lr_patience=3, 
+                                     lr_epsilon=0.00001, 
                                      lr_cooldown=6, 
-                                     lr_minimum=0.00005, 
+                                     lr_minimum=0.00001, 
                                      maxqsize=25
                                      )
     
