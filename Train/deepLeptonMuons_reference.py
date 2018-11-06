@@ -30,7 +30,7 @@ if newtraining:
     train.train_data.maxFilesOpen=25 #5
     
     print(train.keras_model.summary())
-    model,history = train.trainModel(nepochs=30, #3, #4 
+    model,history = train.trainModel(nepochs=50, #3, #4 
                                      batchsize=10000, #64, #512, #1024, #2048, #4096
                                      stop_patience=300, 
                                      lr_factor=0.5, 
