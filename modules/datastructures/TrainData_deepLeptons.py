@@ -440,7 +440,7 @@ class TrainData_deepLeptons_Muons_sorted_2016(TrainData_fullTruth):
         #isolation features
         'lep_relIso03', 'lep_miniRelIsoCharged', 'lep_miniRelIsoNeutral', 
         'lep_jetPtRatiov1', 'lep_jetPtRelv1',
-        # 'lep_jetPtRatiov2', 'lep_jetPtRelv2',
+        'lep_jetPtRatiov2', 'lep_jetPtRelv2',
 
         #high-level lepton features
         #lep_jetBTagCSV', 
@@ -455,7 +455,7 @@ class TrainData_deepLeptons_Muons_sorted_2016(TrainData_fullTruth):
         ])
 
         self.addBranches(['pfCand_neutral_ptRel_ptRelSorted',  'pfCand_neutral_deltaR_ptRelSorted',  'pfCand_neutral_pt_ptRelSorted',  'pfCand_neutral_puppiWeight_ptRelSorted', 'pfCand_neutral_fromPV_ptRelSorted',],5)
-        self.addBranches(['pfCand_charged_ptRel_ptRelSorted',  'pfCand_charged_deltaR_ptRelSorted',  'pfCand_charged_pt_ptRelSorted',  'pfCand_charged_puppiWeight_ptRelSorted', 'pfCand_charged_fromPV_ptRelSorted', 'pfCand_charged_dxy_pf_ptRelSorted', 'pfCand_charged_dz_pf_ptRelSorted',],20)
+        self.addBranches(['pfCand_charged_ptRel_ptRelSorted',  'pfCand_charged_deltaR_ptRelSorted',  'pfCand_charged_pt_ptRelSorted',  'pfCand_charged_puppiWeight_ptRelSorted', 'pfCand_charged_fromPV_ptRelSorted', 'pfCand_charged_dxy_pf_ptRelSorted', 'pfCand_charged_dz_pf_ptRelSorted', 'pfCand_charged_dzAssociatedPV_ptRelSorted',],20)
         self.addBranches(['pfCand_photon_ptRel_ptRelSorted',   'pfCand_photon_deltaR_ptRelSorted',   'pfCand_photon_pt_ptRelSorted',   'pfCand_photon_puppiWeight_ptRelSorted',  'pfCand_photon_fromPV_ptRelSorted',],10)
         self.addBranches(['pfCand_electron_ptRel_ptRelSorted', 'pfCand_electron_deltaR_ptRelSorted', 'pfCand_electron_pt_ptRelSorted', 'pfCand_electron_dxy_pf_ptRelSorted', 'pfCand_electron_dz_pf_ptRelSorted',],3)
         self.addBranches(['pfCand_muon_ptRel_ptRelSorted',     'pfCand_muon_deltaR_ptRelSorted',     'pfCand_muon_pt_ptRelSorted',     'pfCand_muon_dxy_pf_ptRelSorted',     'pfCand_muon_dz_pf_ptRelSorted',    ],3)
