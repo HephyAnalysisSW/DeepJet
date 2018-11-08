@@ -1,25 +1,25 @@
 #!/bin/sh
 
 year='2016'
-version='v3'
+version='v4'
 flavour='Muon'
 short='muo'
 run='1'
 fromrun='1'
-ptSelection='pt_15_to_inf'
-sampleSelection='DYvsQCD_sorted'
+ptSelection='pt_15_-1'
+sampleSelection='DYvsQCD'
 sorted='_sorted'
 sampleSize=''
-prefix=''
+prefix='balanced'
 DNN=''
 model=''
-ntestfiles='50'
+ntestfiles=''
 
 #0) Source Environment:
 #source ./gpu_env.sh
 
 #1) Preperation:
-convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/${version}/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
+convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
 convertFromRoot.py -r /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/snapshot.dc
 
 #2) Training:
@@ -27,10 +27,10 @@ python Train/deepLepton${flavour}s${DNN}_reference.py /local/gmoertl/DeepLepton/
 
 #3) Evaluation:
 #a) for test data
-convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}test_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestData
+convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}test_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestData
 predict.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/KERAS${model}_model.h5 /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}EvaluationTestData
 #b) for train data
-convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}train_${short}_std.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestDataIsTrainData
+convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestDataIsTrainData
 predict.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/KERAS_${model}model.h5 /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestDataIsTrainData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}EvaluationTestDataIsTrainData
 
 

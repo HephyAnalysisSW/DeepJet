@@ -366,7 +366,8 @@ if __name__ == "__main__":
         print "Warning! Had to remove NaNs/Infs!"
 
     # Input data
-    input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
+    #input_filename = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root"
+    input_filename = "/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/check_flat_vs_full/TTJets/full/tree.root"
 
     inputData = InputData( input_filename )
     inputData.getEntry(0)
@@ -377,7 +378,7 @@ if __name__ == "__main__":
     evaluator.setMeans( means )
     evaluator.setFeatureBranches( branches[0] )
     evaluator.setPFBranches(      branches[1:] )
-    evaluator.verbose = 5
+    evaluator.verbose = 0
 
     # loop over file
     nevents = inputData.chain.GetEntries()
@@ -390,6 +391,7 @@ if __name__ == "__main__":
             features      =  evaluator.features_for_lepton( "LepGood", i_lep )
             features_normalized, pf_norm, pf = evaluator.prepare_inputs( "LepGood", i_lep)
             np_features = [ np.array( [ features_normalized ], dtype=np.float32 ) ] + [ np.array( [ pf_n ], dtype=np.float32 ) for pf_n in pf_norm]
+            print features[0]
             print "Make prediction"
             prediction = mymodel.predict( np_features )
             print prediction
