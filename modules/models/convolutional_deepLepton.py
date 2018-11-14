@@ -72,6 +72,7 @@ def model_deepLeptonReference(Inputs,nclasses,nregclasses,dropoutRate=0.5,moment
     predictions = [lepton_pred]
     #predictions = [flavour_pred,reg_pred]
     model = Model(inputs=Inputs, outputs=predictions)
+    model.save("/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJet/KERAS_initial_model.h5")
     return model
 
 

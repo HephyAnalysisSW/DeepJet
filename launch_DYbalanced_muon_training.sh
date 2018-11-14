@@ -1,7 +1,7 @@
 #!/bin/sh
 
 year='2016'
-version='v4'
+version='v5'
 flavour='Muon'
 short='muo'
 run='1'
