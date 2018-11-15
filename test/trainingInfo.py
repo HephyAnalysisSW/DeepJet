@@ -50,6 +50,7 @@ class TrainingInfo:
 
 if __name__ == "__main__": 
     # Information on the training
-    training_directory = '/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/'
+    #training_directory = '/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/'
+    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181115/TTJets_balancedPt5toInfMuonTrainData'
     trainingInfo = TrainingInfo( training_directory )
     trainingInfo.dump( os.path.join( training_directory, 'branches_means_vars.pkl' ) )
