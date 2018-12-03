@@ -25,7 +25,7 @@ class TrainDataDeepLepton(TrainData):
         
         
         #standard branches
-        self.registerBranches(self.undefTruth)
+        #self.registerBranches(self.undefTruth)
         self.registerBranches(self.truthclasses)
         self.registerBranches(['lep_pt','lep_eta'])
         
@@ -144,7 +144,7 @@ class TrainDataDeepLepton_simple(TrainData):
         
         
         #standard branches
-        self.registerBranches(self.undefTruth)
+        #self.registerBranches(self.undefTruth)
         self.registerBranches(self.truthclasses)
         self.registerBranches(['lep_pt','lep_eta'])
         
@@ -152,7 +152,7 @@ class TrainDataDeepLepton_simple(TrainData):
         self.weightbranchY='lep_eta'
         
         self.weight_binX = numpy.array([
-                10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100,
+                5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100,
                 125,150,175,200,250,300,400,500,
                 600,2000],dtype=float)
         
