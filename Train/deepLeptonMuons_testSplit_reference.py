@@ -10,9 +10,9 @@ train=training_base(testrun=False)
 newtraining= not train.modelSet()
 #for recovering a training
 if newtraining:
-    from models import model_deepLeptonReference
+    from models import model_deepLeptonReference_testSplit
     
-    train.setModel(model_deepLeptonReference,dropoutRate=0.5,momentum=0.2)
+    train.setModel(model_deepLeptonReference_testSplit,dropoutRate=0.5,momentum=0.2)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
