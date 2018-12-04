@@ -2,7 +2,7 @@ from keras.layers import Dense, Dropout, Flatten,Concatenate, Convolution2D, LST
 from keras.models import Model
 from keras.layers.normalization import BatchNormalization
 from keras.layers.merge import Add, Multiply
-from buildingBlocks_deepLepton import block_deepLeptonConvolutions, block_deepLeptonDense, block_deepLeptonConvolutions_testSize, block_deepLeptonDense_testSize #, block_SchwartzImage, block_deepFlavourBTVConvolutions
+from buildingBlocks_deepLepton import block_deepLeptonConvolutions, block_deepLeptonDense, block_deepLeptonConvolutions_testSize, block_deepLeptonDense_testSize, block_deepLeptonDense_testSplit_sum, block_deepLeptonDense_testSplit_cands, block_deepLeptonDense_testSplit_global #, block_SchwartzImage, block_deepFlavourBTVConvolutions
 
 def model_deepLeptonReference(Inputs,nclasses,nregclasses,dropoutRate=0.5,momentum=0.2):
     """
@@ -205,13 +205,13 @@ def model_deepLeptonReference_testSplit(Inputs,nclasses,nregclasses,dropoutRate=
     
     #separate DNN for pfCands+SV and global vars
     xCands  = Concatenate()( [npf,cpf,ppf,epf,mpf,vtx])
-    xGlobal = Concatenate()( [globalvars])
+    xGlobal = globalvars
     
-    xCands  = block_deepLeptonDense_testSplit(xCands,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
-    xGlobal = block_deepLeptonDense_testSplit(xGlobal,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    xCands  = block_deepLeptonDense_testSplit_cands(xCands,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    xGlobal = block_deepLeptonDense_testSplit_global(xGlobal,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
     
-    x       = Concatenate()( [xGlobals,xCands])
-    x       = block_deepLeptonDense_testSplit(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    x       = Concatenate()( [xGlobal,xCands])
+    x       = block_deepLeptonDense_testSplit_sum(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
 
     lepton_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
     

@@ -18,9 +18,9 @@ ntestfiles='50'
 #0) Source Environment:
 #source ./gpu_env.sh
 
-#1) Preperation:
-convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
-convertFromRoot.py -r /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/snapshot.dc
+##1) Preperation:
+#convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
+#convertFromRoot.py -r /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/snapshot.dc
 
 #2) Training:
 python Train/deepLepton${flavour}s${DNN}_reference.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training
