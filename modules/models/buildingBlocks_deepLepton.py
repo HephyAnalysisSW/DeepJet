@@ -288,19 +288,19 @@ def block_deepLeptonDense_testSize(x,dropoutRate,active=True,batchnorm=False,bat
 #DeepLepton Test Architecture for Split DNN for globalVars and pfCands+SV
 def block_deepLeptonDense_testSplit_sum(x,dropoutRate,active=True,batchnorm=False,batchmomentum=0.2):
     if active:
-        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense0')(x)
+        x=  Dense(400, activation='relu',kernel_initializer='lecun_uniform', name='df_dense0')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm0')(x)
         x = Dropout(dropoutRate,name='df_dense_dropout0')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_dense1')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense1')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm1')(x)
         x = Dropout(dropoutRate,name='df_dense_dropout1')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_dense2')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense2')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm2')(x)
         x = Dropout(dropoutRate,name='df_dense_dropout2')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_dense3')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense3')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm3')(x)
         x = Dropout(dropoutRate,name='df_dense_dropout3')(x)
@@ -311,19 +311,19 @@ def block_deepLeptonDense_testSplit_sum(x,dropoutRate,active=True,batchnorm=Fals
 
 def block_deepLeptonDense_testSplit_cands(x,dropoutRate,active=True,batchnorm=False,batchmomentum=0.2):
     if active:
-        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense0')(x)
+        x=  Dense(400, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense0')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_cands_dense_batchnorm0')(x)
         x = Dropout(dropoutRate,name='df_cands_dense_dropout0')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense1')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense1')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_cands_dense_batchnorm1')(x)
         x = Dropout(dropoutRate,name='df_cands_dense_dropout1')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense2')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense2')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_cands_dense_batchnorm2')(x)
         x = Dropout(dropoutRate,name='df_cands_dense_dropout2')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense3')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_cands_dense3')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_cands_dense_batchnorm3')(x)
         x = Dropout(dropoutRate,name='df_cands_dense_dropout3')(x)
@@ -334,19 +334,19 @@ def block_deepLeptonDense_testSplit_cands(x,dropoutRate,active=True,batchnorm=Fa
 
 def block_deepLeptonDense_testSplit_global(x,dropoutRate,active=True,batchnorm=False,batchmomentum=0.2):
     if active:
-        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense0')(x)
+        x=  Dense(400, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense0')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_global_dense_batchnorm0')(x)
         x = Dropout(dropoutRate,name='df_global_dense_dropout0')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense1')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense1')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_global_dense_batchnorm1')(x)
         x = Dropout(dropoutRate,name='df_global_dense_dropout1')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense2')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense2')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_global_dense_batchnorm2')(x)
         x = Dropout(dropoutRate,name='df_global_dense_dropout2')(x)
-        x=  Dense(100, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense3')(x)
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_global_dense3')(x)
         if batchnorm:
             x = BatchNormalization(momentum=batchmomentum,name='df_global_dense_batchnorm3')(x)
         x = Dropout(dropoutRate,name='df_global_dense_dropout3')(x)
