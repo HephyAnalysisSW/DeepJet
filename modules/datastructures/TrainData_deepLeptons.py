@@ -555,6 +555,107 @@ class TrainData_deepLeptons_Muons_sorted_2016_nonPrompt(TrainData_fullTruth_nonP
         self.x=[x_global,x_npf, x_cpf, x_ppf, x_epf, x_mpf, x_sv]
         self.y=[alltruth]
 
+class TrainData_deepLeptons_Muons_globalVarsOnly_2016(TrainData_fullTruth):
+    '''
+    classdocs
+    '''
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        TrainData_fullTruth.__init__(self)
+
+
+        self.addBranches([
+        #global lepton features
+        'lep_pt', 'lep_eta', #'lep_phi', 
+        'lep_dxy', 'lep_dz', 'lep_edxy', 'lep_edz', 'lep_ip3d', 'lep_sip3d',  
+        'lep_innerTrackChi2','lep_innerTrackValidHitFraction',
+        'lep_ptErrTk', 'lep_rho', 'lep_jetDR',
+        'lep_trackerLayers_float', 'lep_pixelLayers_float', 'lep_trackerHits_float', 'lep_lostHits_float', 'lep_lostOuterHits_float',
+
+        #isolation features
+        'lep_relIso03', 'lep_miniRelIsoCharged', 'lep_miniRelIsoNeutral', 
+        'lep_jetPtRatiov1', 'lep_jetPtRelv1',
+        'lep_jetPtRatiov2', 'lep_jetPtRelv2',
+        #'lep_neutralHadronIsoR03', 'lep_chargedHadronIsoR03',
+
+        #high-level lepton features
+        #lep_jetBTagCSV', 
+        'lep_jetBTagDeepCSV', 
+        #'lep_jetBTagDeepCSVCvsB', 'lep_jetBTagDeepCSVCvsL',  
+
+        #muon specific features
+        'lep_segmentCompatibility', 'lep_muonInnerTrkRelErr', 'lep_isGlobalMuon_float', 
+        'lep_chi2LocalPosition', 'lep_chi2LocalMomentum', 'lep_globalTrackChi2', 
+        'lep_glbTrackProbability', 'lep_trkKink', 'lep_caloCompatibility', 
+        'lep_nStations_float', 
+        ])
+
+    def readFromRootFile(self,filename,TupleMeanStd, weighter):
+        from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
+        import numpy
+        from DeepJetCore.stopwatch import stopwatch
+
+        sw=stopwatch()
+        swall=stopwatch()
+
+        import ROOT
+        
+        self.treename="tree"
+        fileTimeOut(filename,120) #give eos a minute to recover
+        rfile = ROOT.TFile(filename)
+        tree = rfile.Get(self.treename)
+        self.nsamples=tree.GetEntries()
+
+        print('took ', sw.getAndReset(), ' seconds for getting tree entries')
+
+        # split for convolutional network
+        x_global = MeanNormZeroPad(filename,TupleMeanStd,
+                                   [self.branches[0]],
+                                   [self.branchcutoffs[0]],self.nsamples)
+
+        print('took ', sw.getAndReset(), ' seconds for mean norm and zero padding (C module)')
+
+        Tuple = self.readTreeFromRootToTuple(filename)
+
+        if self.remove:
+            notremoves=weighter.createNotRemoveIndices(Tuple)
+            #undef=Tuple['lep_isMuon']
+            #notremoves-=undef
+            print('took ', sw.getAndReset(), ' to create remove indices')
+
+        if self.weight:
+            weights=weighter.getJetWeights(Tuple)
+        elif self.remove:
+            weights=notremoves
+        else:
+            print('neither remove nor weight')
+            weights=numpy.empty(self.nsamples)
+            weights.fill(1.)
+
+
+        truthtuple =  Tuple[self.truthclasses]
+        #print(self.truthclasses)
+        alltruth=self.reduceTruth(truthtuple)
+
+        #print(alltruth.shape)
+        if self.remove:
+            print('remove')
+            weights=weights[notremoves > 0]
+            x_global=x_global[notremoves > 0]
+            alltruth=alltruth[notremoves > 0]
+
+        newnsamp=x_global.shape[0]
+        print('reduced content to ', int(float(newnsamp)/float(self.nsamples)*100),'%')
+        self.nsamples = newnsamp
+
+        print(x_global.shape,self.nsamples)
+
+        self.w=[weights, weights]
+        self.x=[x_global]
+        self.y=[alltruth]
 
 
 

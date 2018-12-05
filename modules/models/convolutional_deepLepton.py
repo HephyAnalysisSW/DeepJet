@@ -225,5 +225,33 @@ def model_deepLeptonReference_testSplit(Inputs,nclasses,nregclasses,dropoutRate=
     #model.save("/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJet/KERAS_initial_model.h5")
     return model
 
+def model_deepLeptonReference_gobalVarsOnly(Inputs,nclasses,nregclasses,dropoutRate=0.5,momentum=0.2):
+    """
+    reference 1x1 convolutional model for 'deepLepton'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    
+    #x = Concatenate()( [globalvars,npf,cpf,ppf,epf,mpf,vtx])
+    x = globalvars
+    
+    x = block_deepLeptonDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    lepton_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    #reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    #reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [lepton_pred]
+    #predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    #model.save("/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJet/KERAS_initial_model.h5")
+    return model
+
 
 
