@@ -225,7 +225,7 @@ def model_deepLeptonReference_testSplit(Inputs,nclasses,nregclasses,dropoutRate=
     #model.save("/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJet/KERAS_initial_model.h5")
     return model
 
-def model_deepLeptonReference_gobalVarsOnly(Inputs,nclasses,nregclasses,dropoutRate=0.5,momentum=0.2):
+def model_deepLeptonReference_globalVarsOnly(Inputs,nclasses,nregclasses,dropoutRate=0.5,momentum=0.2):
     """
     reference 1x1 convolutional model for 'deepLepton'
     with recurrent layers and batch normalisation
