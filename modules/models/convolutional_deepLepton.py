@@ -54,7 +54,7 @@ def model_deepLeptonReference(Inputs,nclasses,nregclasses,dropoutRate=0.5,moment
     mpf = BatchNormalization(momentum=momentum,name='mpflstm_batchnorm')(mpf)
     mpf = Dropout(dropoutRate)(mpf)
     
-    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx = LSTM(150,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
     vtx = BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
     vtx = Dropout(dropoutRate)(vtx)
     
@@ -126,7 +126,7 @@ def model_deepLeptonReference_testSize(Inputs,nclasses,nregclasses,dropoutRate=0
     mpf = BatchNormalization(momentum=momentum,name='mpflstm_batchnorm')(mpf)
     mpf = Dropout(dropoutRate)(mpf)
     
-    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx = LSTM(150,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
     vtx = BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
     vtx = Dropout(dropoutRate)(vtx)
     
@@ -199,7 +199,7 @@ def model_deepLeptonReference_testSplit(Inputs,nclasses,nregclasses,dropoutRate=
     mpf = BatchNormalization(momentum=momentum,name='mpflstm_batchnorm')(mpf)
     mpf = Dropout(dropoutRate)(mpf)
     
-    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx = LSTM(150,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
     vtx = BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
     vtx = Dropout(dropoutRate)(vtx)
     
@@ -243,14 +243,8 @@ def model_deepLeptonReference_globalVarsOnly(Inputs,nclasses,nregclasses,dropout
     
     lepton_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
     
-    #reg = Concatenate()( [flavour_pred, ptreginput ] ) 
-    
-    #reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
-    
     predictions = [lepton_pred]
-    #predictions = [flavour_pred,reg_pred]
     model = Model(inputs=Inputs, outputs=predictions)
-    #model.save("/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJet/KERAS_initial_model.h5")
     return model
 
 

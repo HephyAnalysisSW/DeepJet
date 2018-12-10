@@ -1,39 +1,36 @@
-#!/bin/sh
+#!/bin/sh -x
 
-year='2016'
-version='v6'
-flavour='Muon'
-short='muo'
-run='1'
-fromrun='1'
-ptSelection='pt_5_-1'
-sampleSelection='TTs'
-sorted='_sorted'
-sampleSize=''
-prefix='balanced_pt5toInf_'
-DNN=''
-model=''
-ntestfiles='50'
+#select training name
+prefix='TTs_Muon2_'
+
+#select training data and 
+trainingDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/train_muo.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
+trainingOutputDirectory='/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults'                              #training output directory must exist
+trainingDataStructure='TrainData_deepLeptons_Muons_sorted_2016'                                             #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
+trainingModelReference='Train/deepLeptonMuons_reference.py'                                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
+
+#select evaluation data
+EvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50test_muo.txt' 
+EvaluationTrainDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt'  
+
 
 #0) Source Environment:
 #source ./gpu_env.sh
+#ulimit -m unlimited; ulimit -v unlimited
 
 #1) Preperation:
-convertFromRoot.py -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${sampleSize}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TrainData -c TrainData_deepLeptons_${flavour}s${sorted}_${year}
-convertFromRoot.py -r /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/snapshot.dc
+convertFromRoot.py -i ${trainingDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TrainData -c ${trainingDataStructure}
+convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
+convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
 
 #2) Training:
-python Train/deepLepton${flavour}s${DNN}_reference.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${fromrun}TrainData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training
+#python ${trainingModelReference} ${trainingOutputDirectory}/${prefix}TrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}Training
 
-#3) Evaluation:
-#a) for test data
-convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}test_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestData
-predict.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/KERAS${model}_model.h5 /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}EvaluationTestData
-#b) for train data
-convertFromRoot.py --testdatafor /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/trainsamples.dc -i /local/gmoertl/DeepLepton/TrainingData/${version}/step3/${year}/${short}/${ptSelection}/${sampleSelection}/${ntestfiles}train_${short}.txt -o /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestDataIsTrainData
-predict.py /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}Training/KERAS_${model}model.h5 /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}TestDataIsTrainData/dataCollection.dc /local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults/${sampleSelection}_${prefix}${flavour}${run}EvaluationTestDataIsTrainData
+##3) Evaluation:
+##a) for test data
+#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
+#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS$_model.h5 ${trainingOutputDirectory}/${prefix}TestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestData
+##b) for train data
+#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTrainDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestDataIsTrainData
+#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestDataIsTrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestDataIsTrainData
 
-
-##4) Plots:
-#cd /yourEvaluationDirectory/
-#python /yourWorkDirectory/DeepJet/Train/Plotting/ROC_lepton.py
