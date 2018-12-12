@@ -1,13 +1,13 @@
 #!/bin/sh -x
 
 #select training name
-prefix='TTs_Muon2_simpleClasses_'
+prefix='TTs_Muon7_TTVonly_'
 
 #select training data and 
 trainingDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/train_muo.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
 trainingOutputDirectory='/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults'                              #training output directory must exist
-trainingDataStructure='TrainData_deepLeptons_Muons_simpleClasses_2016'                                      #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
-trainingModelReference='Train/deepLepton_Muons_reference.py'                                                #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
+trainingDataStructure='TrainData_deepLeptons_Muons_TTVonly_2016'                                            #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
+trainingModelReference='Train/deepLepton_Muons_globalVarsOnly_reference.py'                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
 
 #select evaluation data
 EvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50test_muo.txt' 

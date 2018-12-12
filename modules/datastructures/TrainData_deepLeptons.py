@@ -16,7 +16,7 @@ from TrainDataDeepLepton import TrainData_fullTruth, TrainData_fullTruth_simple,
 from TrainDataDeepLepton import fileTimeOut
 
 
-class TrainData_deepLeptons_Electrons_sorted_2016(TrainData_fullTruth):
+class TrainData_deepLeptons_Electrons_2016(TrainData_fullTruth):
     '''
     classdocs
     '''
@@ -286,7 +286,7 @@ class TrainData_deepLeptons_Muons_sorted_2016(TrainData_fullTruth):
         self.x=[x_global,x_npf, x_cpf, x_ppf, x_epf, x_mpf, x_sv]
         self.y=[alltruth]
 
-class TrainData_deepLeptons_Muons_sorted_2016_simple(TrainData_fullTruth_simple):
+class TrainData_deepLeptons_Muons_simpleClasses_2016(TrainData_fullTruth_simple):
     '''
     classdocs
     '''
@@ -526,7 +526,7 @@ class TrainData_deepLeptons_Muons_globalVarsOnly_2016(TrainData_fullTruth):
         self.y=[alltruth]
 
 
-class TrainData_deepLeptons_Muons_TTVplusPFSV_2016(TrainData_fullTruth):
+class TrainData_deepLeptons_Muons_TTV_2016(TrainData_fullTruth):
     '''
     classdocs
     '''
