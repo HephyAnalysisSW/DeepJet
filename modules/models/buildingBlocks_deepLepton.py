@@ -3,7 +3,7 @@ standardised building blocks for the models
 '''
 
 from keras.layers import Dense, Dropout, Flatten,Convolution2D, Convolution1D
-from keras.layers.pooling import MaxPooling2D
+from keras.layers.pooling import MaxPooling2D, MaxPooling1D
 from keras.layers.normalization import BatchNormalization
 
 #Deep Lepton Standard Architecture
@@ -144,6 +144,124 @@ def block_deepLeptonDense(x,dropoutRate,active=True,batchnorm=False,batchmomentu
     
     return x
 
+#Test max pooling layers
+def block_deepLeptonConvolutions_pooling(charged,neutrals,photons,electrons,muons,vertices,dropoutRate,active=True,batchnorm=False,batchmomentum=0.2):
+    '''
+    deep Lepton convolution part. 
+    '''
+    npf=neutrals
+    if active:
+        npf = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='npf_conv0')(npf)
+        npf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='npf_pool0')(npf)
+        if batchnorm:
+            npf = BatchNormalization(momentum=batchmomentum,name='npf_batchnorm0')(npf)
+        npf = Dropout(dropoutRate,name='npf_dropout0')(npf) 
+        npf = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='npf_conv1')(npf)
+        npf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='npf_pool1')(npf)
+        if batchnorm:
+            npf = BatchNormalization(momentum=batchmomentum,name='npf_batchnorm1')(npf)
+        npf = Dropout(dropoutRate,name='npf_dropout1')(npf)
+        npf = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='npf_conv2')(npf)
+        npf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='npf_pool2')(npf)
+    else:
+        npf = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(npf)
+    
+    cpf=charged
+    if active:
+        cpf = Convolution1D(64, 1, kernel_initializer='lecun_uniform',  activation='relu', name='cpf_conv0')(cpf)
+        cpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='cpf_pool0')(cpf)
+        if batchnorm:
+            cpf = BatchNormalization(momentum=batchmomentum,name='cpf_batchnorm0')(cpf)
+        cpf = Dropout(dropoutRate,name='cpf_dropout0')(cpf) 
+        cpf = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='cpf_conv1')(cpf)
+        cpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='cpf_pool1')(cpf)
+        if batchnorm:
+            cpf = BatchNormalization(momentum=batchmomentum,name='cpf_batchnorm1')(cpf)
+        cpf = Dropout(dropoutRate,name='cpf_dropout1')(cpf) 
+        cpf = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='cpf_conv2')(cpf)
+        cpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='cpf_pool2')(cpf)
+        if batchnorm:
+            cpf = BatchNormalization(momentum=batchmomentum,name='cpf_batchnorm2')(cpf)
+        cpf = Dropout(dropoutRate,name='cpf_dropout2')(cpf)
+        cpf = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='cpf_conv3')(cpf)
+        cpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='cpf_pool3')(cpf)
+    else:
+        cpf = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(cpf)
+        
+    ppf=photons
+    if active:
+        ppf = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='ppf_conv0')(ppf)
+        ppf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='ppf_pool0')(ppf)
+        if batchnorm:
+            ppf = BatchNormalization(momentum=batchmomentum,name='ppf_batchnorm0')(ppf)
+        ppf = Dropout(dropoutRate,name='ppf_dropout0')(ppf) 
+        ppf = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='ppf_conv1')(ppf)
+        ppf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='ppf_pool1')(ppf)
+        if batchnorm:
+            ppf = BatchNormalization(momentum=batchmomentum,name='ppf_batchnorm1')(ppf)
+        ppf = Dropout(dropoutRate,name='ppf_dropout1')(ppf)
+        ppf = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='ppf_conv2')(ppf)
+        ppf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='ppf_pool2')(ppf)
+    else:
+        ppf = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(ppf)
+
+    epf=electrons
+    if active:
+        epf = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='epf_conv0')(epf)
+        epf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='epf_pool0')(epf)
+        if batchnorm:
+            epf = BatchNormalization(momentum=batchmomentum,name='epf_batchnorm0')(epf)
+        epf = Dropout(dropoutRate,name='epf_dropout0')(epf) 
+        epf = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='epf_conv1')(epf)
+        epf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='epf_pool1')(epf)
+        if batchnorm:
+            epf = BatchNormalization(momentum=batchmomentum,name='epf_batchnorm1')(epf)
+        epf = Dropout(dropoutRate,name='epf_dropout1')(epf)
+        epf = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='epf_conv2')(epf)
+        epf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='epf_pool2')(epf)
+    else:
+        epf = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(epf)
+
+    mpf=muons
+    if active:
+        mpf = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='mpf_conv0')(mpf)
+        mpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='mpf_pool0')(mpf)
+        if batchnorm:
+            mpf = BatchNormalization(momentum=batchmomentum,name='mpf_batchnorm0')(mpf)
+        mpf = Dropout(dropoutRate,name='mpf_dropout0')(mpf) 
+        mpf = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='mpf_conv1')(mpf)
+        mpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='mpf_pool1')(mpf)
+        if batchnorm:
+            mpf = BatchNormalization(momentum=batchmomentum,name='mpf_batchnorm1')(mpf)
+        mpf = Dropout(dropoutRate,name='mpf_dropout1')(mpf)
+        mpf = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='mpf_conv2')(mpf)
+        mpf = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='mpf_pool2')(mpf)
+    else:
+        mpf = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(mpf)
+
+    vtx = vertices
+    if active:
+        vtx = Convolution1D(64, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv0')(vtx)
+        vtx = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='vtx_pool0')(vtx)
+        if batchnorm:
+            vtx = BatchNormalization(momentum=batchmomentum,name='vtx_batchnorm0')(vtx)
+        vtx = Dropout(dropoutRate,name='vtx_dropout0')(vtx) 
+        vtx = Convolution1D(32, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv1')(vtx)
+        vtx = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='vtx_pool1')(vtx)
+        if batchnorm:
+            vtx = BatchNormalization(momentum=batchmomentum,name='vtx_batchnorm1')(vtx)
+        vtx = Dropout(dropoutRate,name='vtx_dropout1')(vtx)
+        vtx = Convolution1D(16, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv2')(vtx)
+        vtx = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='vtx_pool2')(vtx)
+        if batchnorm:
+            vtx = BatchNormalization(momentum=batchmomentum,name='vtx_batchnorm2')(vtx)
+        vtx = Dropout(dropoutRate,name='vtx_dropout2')(vtx)
+        vtx = Convolution1D(4, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv3')(vtx)
+        vtx = MaxPooling1D(pool_length=2, stride=None, border_mode='same', name='vtx_pool3')(vtx)
+    else:
+        vtx = Convolution1D(1,1, kernel_initializer='zeros',trainable=False)(vtx)
+
+    return npf,cpf,ppf,epf,mpf,vtx
 
 
 #Deep Lepton Test Architecture
