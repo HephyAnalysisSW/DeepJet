@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 #select training name
-prefix='TTs_Muon8_TTV'
+prefix='TTs_Muon8_TTV_'
 
 #select training data and 
 trainingDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/train_muo.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
