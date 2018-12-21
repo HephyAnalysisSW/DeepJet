@@ -12,31 +12,35 @@ trainingModelReference='Train/deepLepton_Muons_reference.py'                    
 #select evaluation data
 EvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50test_muo.txt' 
 EvaluationTrainDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt'  
-CrossEvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v4/step3/2016/muo/pt_15_-1/DYvsQCD/test_muo.txt' 
+CrossEvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/DYvsQCD/50test_muo.txt' 
+CrossAllEvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/all/50test_muo.txt' 
 
 
 #0) Source Environment:
 #source ./gpu_env.sh
 #ulimit -m unlimited; ulimit -v unlimited
 
-#1) Preperation:
-# Conversion to Data Structure
-convertFromRoot.py -i ${trainingDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TrainData -c ${trainingDataStructure}
-# ensure, that all files have been converted
-convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
-convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
-
-#2) Training:
-python ${trainingModelReference} ${trainingOutputDirectory}/${prefix}TrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}Training
-
-#3) Evaluation:
-#a) for test data
-convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
-predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestData
-#b) for train data
-convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTrainDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestDataIsTrainData
-predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestDataIsTrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestDataIsTrainData
-#c) for alternative sample
-convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${CrossEvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}CrossTestData
-predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}CrossTestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}CrossEvaluationTestData
+##1) Preperation:
+## Conversion to Data Structure
+#convertFromRoot.py -i ${trainingDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TrainData -c ${trainingDataStructure}
+## ensure, that all files have been converted
+#convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
+#convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
+#
+##2) Training:
+#python ${trainingModelReference} ${trainingOutputDirectory}/${prefix}TrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}Training
+#
+##3) Evaluation:
+##a) for test data
+#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
+#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestData
+##b) for train data
+#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTrainDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestDataIsTrainData
+#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestDataIsTrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestDataIsTrainData
+##c) for alternative sample
+#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${CrossEvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}CrossTestData
+#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}CrossTestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}CrossEvaluationTestData
+#d) for alternative sample
+convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${CrossAllEvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}CrossAllTestData
+predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}CrossAllTestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}CrossAllEvaluationTestData
 
