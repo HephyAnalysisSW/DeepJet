@@ -1,5 +1,5 @@
 
-export PATH=/local/gmoertl/DeepLepton/DeepJet_GPU/miniconda3/bin:$PATH
+export PATH=/local/${USER}/DeepLepton/DeepJet_GPU/miniconda3/bin:$PATH
 export DEEPJETCORE=../DeepJetCore
 
 THISDIR=`pwd`
