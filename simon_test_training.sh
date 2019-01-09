@@ -29,7 +29,7 @@ convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
 
 #2) Training:
 #python ${trainingModelReference} ${trainingOutputDirectory}/${prefix}TrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}Training
-
+#
 #3) Evaluation:
 #a) for test data
 #convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
