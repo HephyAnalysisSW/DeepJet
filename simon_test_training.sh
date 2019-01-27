@@ -1,17 +1,18 @@
 #!/bin/sh -x
 
 #select training name
-prefix='TTs_Muon_'
+#prefix='TTs_Muon_'
+prefix='TTs_Electron_run01_'
 
 #select training data and 
-trainingDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
+trainingDataTxtFile='/local/sschneider/DeepLepton/DeepJet_GPU/TrainingData/v1/step3/2016/ele/pt_5_-1/TTs/train_ele_50.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
 trainingOutputDirectory='/local/sschneider/DeepLepton/DeepJet_GPU/DeepJetResults'                              #training output directory must exist
-trainingDataStructure='TrainData_deepLeptons_Muons_sorted_2016'                                             #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
-trainingModelReference='Train/deepLepton_Muons_reference.py'                                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
+trainingDataStructure='TrainData_deepLeptons_Electrons_2016_run1'                                             #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
+trainingModelReference='Train/deepLepton_Electrons_reference.py'                                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
 
 #select evaluation data
-EvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50test_muo.txt' 
-EvaluationTrainDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt'  
+EvaluationTestDataTxtFile='/local/sschneider/DeepLepton/DeepJet_GPU/TrainingData/v1/step3/2016/ele/pt_5_-1/TTs/test_ele_50.txt' 
+EvaluationTrainDataTxtFile='/local/sschneider/DeepLepton/DeepJet_GPU/TrainingData/v1/step3/2016/ele/pt_5_-1/TTs/train_ele_50.txt'  
 #CrossEvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/DYvsQCD/50test_muo.txt' 
 #CrossAllEvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016/muo/pt_5_-1/all/50test_muo.txt' 
 
