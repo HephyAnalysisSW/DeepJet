@@ -62,7 +62,6 @@ class TrainData_deepLeptons_Electrons_2016_run1(TrainData_fullTruth):
         'lep_dEtaInSeed', 'lep_dPhiScTrkIn', 'lep_dEtaScTrkIn', 
         'lep_eInvMinusPInv', 'lep_convVeto_float', 'lep_hadronicOverEm', 'lep_r9', 
         'lep_mvaIdSpring16',
-        ])
 
         self.addBranches(['pfCand_neutral_ptRel_ptRelSorted',  'pfCand_neutral_deltaR_ptRelSorted',  'pfCand_neutral_pt_ptRelSorted',  'pfCand_neutral_puppiWeight_ptRelSorted', 'pfCand_neutral_fromPV_ptRelSorted',],5)
         self.addBranches(['pfCand_charged_ptRel_ptRelSorted',  'pfCand_charged_deltaR_ptRelSorted',  'pfCand_charged_pt_ptRelSorted',  'pfCand_charged_puppiWeight_ptRelSorted', 'pfCand_charged_fromPV_ptRelSorted', 'pfCand_charged_dxy_pf_ptRelSorted', 'pfCand_charged_dz_pf_ptRelSorted', 'pfCand_charged_dzAssociatedPV_ptRelSorted',],25)
