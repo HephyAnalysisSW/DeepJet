@@ -68,7 +68,7 @@ class TrainData_deepLeptons_Electrons_2016_run1(TrainData_fullTruth):
         'lep_eInvMinusPInv', 
         'lep_convVeto_float', #apply?
         'lep_hadronicOverEm', 'lep_r9', 
-        'lep_mvaIdSpring16', #try without this?
+        #'lep_mvaIdSpring16', #try without this?
         ])
 
         self.addBranches(['pfCand_neutral_ptRel_ptRelSorted',  'pfCand_neutral_deltaR_ptRelSorted',  'pfCand_neutral_pt_ptRelSorted',  'pfCand_neutral_puppiWeight_ptRelSorted', 'pfCand_neutral_fromPV_ptRelSorted',],5)
