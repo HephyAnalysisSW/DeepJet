@@ -38,6 +38,7 @@ class TrainData_deepLeptons_Electrons_2016_run1(TrainData_fullTruth):
         '''
         TrainData_fullTruth.__init__(self)
 
+        self.addBranches([
         #global lepton features
         'lep_pt', 'lep_eta', #'lep_phi', 
         'lep_dxy', 'lep_dz', #'lep_edxy', 'lep_edz', 
@@ -48,7 +49,7 @@ class TrainData_deepLeptons_Electrons_2016_run1(TrainData_fullTruth):
 
         #isolation features
         'lep_relIso03', 'lep_miniRelIsoCharged', 'lep_miniRelIsoNeutral', 
-        'lep_jetPtRatiov1', 'lep_jetPtRelv1',
+        #'lep_jetPtRatiov1', 'lep_jetPtRelv1',
         'lep_jetPtRatiov2', 'lep_jetPtRelv2',
         #'lep_neutralHadronIsoR03', 'lep_chargedHadronIsoR03',
 
@@ -58,10 +59,15 @@ class TrainData_deepLeptons_Electrons_2016_run1(TrainData_fullTruth):
         #'lep_jetBTagDeepCSVCvsB', 'lep_jetBTagDeepCSVCvsL',  
 
         #electron specific features
-        'lep_etaSc', 'lep_sigmaIEtaIEta', 'lep_full5x5_sigmaIetaIeta', 
-        'lep_dEtaInSeed', 'lep_dPhiScTrkIn', 'lep_dEtaScTrkIn', 
-        'lep_eInvMinusPInv', 'lep_convVeto_float', 'lep_hadronicOverEm', 'lep_r9', 
-        'lep_mvaIdSpring16',
+        'lep_etaSc', #'lep_sigmaIEtaIEta', 
+        'lep_full5x5_sigmaIetaIeta', 
+        'lep_dEtaInSeed', 
+        'lep_dPhiScTrkIn', 
+        'lep_dEtaScTrkIn', 
+        'lep_eInvMinusPInv', 
+        'lep_convVeto_float', #apply?
+        'lep_hadronicOverEm', 'lep_r9', 
+        'lep_mvaIdSpring16', #try without this?
         ])
 
         self.addBranches(['pfCand_neutral_ptRel_ptRelSorted',  'pfCand_neutral_deltaR_ptRelSorted',  'pfCand_neutral_pt_ptRelSorted',  'pfCand_neutral_puppiWeight_ptRelSorted', 'pfCand_neutral_fromPV_ptRelSorted',],5)
