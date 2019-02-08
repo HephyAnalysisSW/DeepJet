@@ -2,7 +2,7 @@
 
 #select training name
 #prefix='TTs_Muon_'
-prefix='TTJets_Electron_run04_'
+prefix='TTJets_Electron_run05_'
 
 #select training data and 
 trainingDataTxtFile='/local/sschneider/DeepLepton/DeepJet_GPU/TrainingData/v1/2016/ele/pt_5_-1/TTJets/train_ele.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
@@ -23,18 +23,18 @@ ulimit -m unlimited; ulimit -v unlimited
 
 #1) Preperation:
 # Conversion to Data Structure
-convertFromRoot.py -i ${trainingDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TrainData -c ${trainingDataStructure}
+#convertFromRoot.py -i ${trainingDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TrainData -c ${trainingDataStructure}
 # ensure, that all files have been converted
-convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
-convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
+#convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
+#convertFromRoot.py -r ${trainingOutputDirectory}/${prefix}TrainData/snapshot.dc
 
 #2) Training:
 #python ${trainingModelReference} ${trainingOutputDirectory}/${prefix}TrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}Training
 #
 #3) Evaluation:
 #a) for test data
-#convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
-#predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestData
+convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTestDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestData
+predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestData
 #b) for train data
 #convertFromRoot.py --testdatafor ${trainingOutputDirectory}/${prefix}Training/trainsamples.dc -i ${EvaluationTrainDataTxtFile} -o ${trainingOutputDirectory}/${prefix}TestDataIsTrainData
 #predict.py ${trainingOutputDirectory}/${prefix}Training/KERAS_model.h5 ${trainingOutputDirectory}/${prefix}TestDataIsTrainData/dataCollection.dc ${trainingOutputDirectory}/${prefix}EvaluationTestDataIsTrainData
