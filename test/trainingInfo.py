@@ -52,6 +52,6 @@ if __name__ == "__main__":
     # Information on the training
     #training_directory = '/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/'
     #training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181204/TTs_balanced_pt5toInf_MuonTrainData'
-    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-03/TTs_Muon_biLSTM_splitDense_selu_TrainData'
+    training_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_TrainData'
     trainingInfo = TrainingInfo( training_directory )
     trainingInfo.dump( os.path.join( training_directory, 'branches_means_vars.pkl' ) )
