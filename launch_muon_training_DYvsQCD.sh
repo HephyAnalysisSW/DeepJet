@@ -7,7 +7,7 @@ prefix='DYvsQCD_Muon_'
 trainingDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v1/step3/2016/muo/pt_15_-1/DYvsQCD/train_muo.txt'    #txt file should contain all training files, files should be stored in the same directroy as the txt file
 trainingOutputDirectory='/local/gmoertl/DeepLepton/DeepJet_GPU/DeepJetResults'                              #training output directory must exist
 trainingDataStructure='TrainData_deepLeptons_Muons_sorted_2016'                                             #select from DeepJet/modules/datastructures/TrainData_deepLeptons.py
-trainingModelReference='Train/deepLepton_Muons_biLSTM_splitDense_selu_reference.py'                                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
+trainingModelReference='Train/deepLepton_Muons_biLSTM_splitDense_elu_reference.py'                                                 #select from DeepJet/Train/deepLeptonXYreference.py, where the training model can be defined, define architecture in DeepJet/modules/models/convolutional_deepLepton.py and layers in DeepJet/modules/models/buildingBlocks_deepLepton.py
 
 #select evaluation data
 EvaluationTestDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v1/step3/2016/muo/pt_15_-1/DYvsQCD/test_muo.txt' 
