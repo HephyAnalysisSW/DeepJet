@@ -15,8 +15,8 @@ EvaluationTrainDataTxtFile='/local/gmoertl/DeepLepton/TrainingData/v6/step3/2016
 
 
 #0) Source Environment:
-#source ./gpu_env.sh
-#ulimit -m unlimited; ulimit -v unlimited
+source ./gpu_env.sh
+ulimit -m unlimited; ulimit -v unlimited
 
 #1) Preperation:
 # Conversion to Data Structure
